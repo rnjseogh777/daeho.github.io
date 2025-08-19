@@ -1,0 +1,25 @@
+name: Update Company News (daily)
+permissions: { contents: write }
+on:
+  schedule:
+    - cron: '30 15 * * *'  # 매일 00:30 KST
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: true }
+      - name: Build news JSONs
+        run: node scripts/fetchNewsMulti.js
+      - name: Commit & push if changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "chore: update company news"
+            git push
+          else
+            echo "No changes."
+          fi

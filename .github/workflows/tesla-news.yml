@@ -1,6 +1,6 @@
 name: Update Tesla News (daily)
 
-# GITHUB_TOKEN에 'contents: write' 권한을 명시 (커밋/푸시 위해 필요)
+# GitHub Actions 토큰에 'contents: write' 권한 명시
 permissions:
   contents: write
 
@@ -19,16 +19,9 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install deps
-        run: npm i xml2js@0
-
+      # ⬇️ 외부 패키지 설치 없이 Node만으로 실행
       - name: Fetch RSS & build JSON
-        run: node scripts/fetchTeslaNews.cjs
+        run: node scripts/fetchTeslaNews.js
 
       - name: Commit & push if changed
         run: |

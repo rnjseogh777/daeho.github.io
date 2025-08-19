@@ -1,17 +1,13 @@
-<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Stock Market — 내 홈페이지</title>
-  <meta name="description" content="주요 시장 지표와 포트폴리오를 요약하는 페이지" />
+  <meta name="description" content="주요 지표/자산을 요약해 보여주는 전용 페이지" />
   <style>
-    :root{
-      --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9ca3af;
-      --accent:#60a5fa; --accent-2:#34d399;
-    }
+    :root{ --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --accent-2:#34d399; }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(1200px 800px at 80% -10%,#1f2937 0%,#0b1225 50%,#020617 100%);color:var(--text);}
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(1200px 800px at 80% -10%,#1f2937 0%,#0b1225 50%,#020617 100%);color:var(--text)}
     a{color:var(--accent);text-decoration:none}
     a:hover{text-decoration:underline;opacity:.9}
     .container{max-width:1100px;margin:0 auto;padding:20px}
@@ -22,9 +18,7 @@
     .navlinks{display:flex;gap:18px;flex-wrap:wrap}
     .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid #1f2937;background:#0b1220}
     .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
-    .hero{padding:64px 0}
-    .hero h1{font-size:44px;margin:0 0 10px}
-    .muted{color:var(--muted)}
+    .hero{padding:42px 0}
     .grid{display:grid;gap:18px}
     @media(min-width:768px){.grid.cols-2{grid-template-columns:repeat(2,1fr)}}
     section{padding:28px 0}
@@ -33,6 +27,7 @@
     .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.8}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid #1f2937;text-align:left}
+    .muted{color:var(--muted)}
     .footer{border-top:1px solid #111827;margin-top:40px;padding-top:20px;color:#9aa3b2}
   </style>
 </head>
@@ -51,46 +46,113 @@
   </header>
 
   <main class="container">
+    <!-- ① 위젯: TradingView 심볼 오버뷰 (여러 자산 동시 표시) -->
     <section class="hero">
-      <h1>Stock Market</h1>
-      <p class="muted">주요 지표/자산을 요약해 보여주는 전용 페이지입니다. 이후에 차트나 API를 붙이면 확장할 수 있어요.</p>
-    </section>
-
-    <section>
-      <div class="section-title"><div class="bar"></div><h2>간단 요약</h2></div>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>관심 티커</h3>
-          <p class="muted">예: KOSPI, KOSDAQ, S&P 500, NASDAQ, BTC, ETH…</p>
-        </div>
-        <div class="card">
-          <h3>메모</h3>
-          <p class="muted">시장 코멘트를 간단히 기록하세요.</p>
+      <div class="card">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [
+              ["KOSPI","TVC:KOSPI|1D"],
+              ["삼성전자","KRX:005930|1D"],
+              ["S&P 500","FOREXCOM:SPXUSD|1D"],
+              ["NASDAQ 100","NASDAQ:NDX|1D"],
+              ["Bitcoin","CRYPTO:BTCUSD|1D"]
+            ],
+            "width": "100%",
+            "height": "420",
+            "locale": "ko",
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "showVolume": false,
+            "showMA": true,
+            "autosize": true
+          }
+          </script>
         </div>
       </div>
     </section>
 
+    <!-- ② 대시보드: Alpha Vantage 데이터(서버리스 프록시 필요) -->
     <section>
-      <div class="section-title"><div class="bar"></div><h2>보유/관심 목록</h2></div>
+      <div class="section-title"><div class="bar"></div><h2>시장 대시보드</h2></div>
       <div class="card">
+        <p class="muted">아래 표는 Alpha Vantage의 일일 데이터(Time Series Daily)를 예시로 렌더링합니다. <strong>API 키는 프론트에 직접 노출하지 마세요.</strong> Cloudflare Workers/Netlify Functions 등 서버리스 프록시를 사용해 호출하세요.</p>
         <table>
           <thead>
-            <tr><th>자산</th><th>티커/코드</th><th>비고</th></tr>
+            <tr><th>자산명</th><th>심볼</th><th>날짜</th><th>종가</th><th>전일 대비</th></tr>
           </thead>
-          <tbody>
-            <tr><td>KOSPI</td><td>KOSPI</td><td class="muted">지수</td></tr>
-            <tr><td>S&P 500</td><td>^GSPC</td><td class="muted">지수</td></tr>
-            <tr><td>Bitcoin</td><td>BTC</td><td class="muted">암호자산</td></tr>
+          <tbody id="av-body">
+            <tr><td colspan="5" class="muted">불러오는 중…</td></tr>
           </tbody>
         </table>
       </div>
     </section>
-
-    <div class="footer">
-      <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
-    </div>
   </main>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <div class="container"><div class="footer">
+    <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
+  </div></div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ▼▼▼ 서버리스 프록시 엔드포인트를 여기에 입력하세요 (예: Cloudflare Workers) ▼▼▼
+    const WORKER_URL = 'https://YOUR-WORKER-SUBDOMAIN.workers.dev';
+
+    // 조회할 심볼 목록 (Alpha Vantage 주식 심볼 규칙: KRX는 ".KS")
+    const symbols = [
+      { label: '삼성전자', symbol: '005930.KS' },
+      { label: 'Apple', symbol: 'AAPL' },
+      { label: 'Tesla', symbol: 'TSLA' }
+    ];
+
+    async function fetchDaily(symbol) {
+      const url = `${WORKER_URL}?symbol=${encodeURIComponent(symbol)}`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('API 응답 오류');
+      const json = await resp.json();
+      const series = json['Time Series (Daily)'] || json['Time Series (Daily Adjusted)'];
+      if (!series) throw new Error('일별 시계열 데이터가 없습니다');
+      const dates = Object.keys(series).sort().reverse();
+      const latest = series[dates[0]];
+      const prev = series[dates[1]];
+      const close = parseFloat(latest['4. close'] || latest['5. adjusted close']);
+      const prevClose = parseFloat(prev['4. close'] || prev['5. adjusted close']);
+      const diff = close - prevClose;
+      const pct = (diff / prevClose) * 100;
+      return { date: dates[0], close, diff, pct };
+    }
+
+    function renderRow({ label, symbol }, res, tbody) {
+      const tr = document.createElement('tr');
+      const fmt = (n) => (n===null||Number.isNaN(n) ? '—' : n.toLocaleString(undefined,{maximumFractionDigits:2}));
+      const sign = res && res.diff !== undefined ? (res.diff>0?'+':'') : '';
+      tr.innerHTML = `
+        <td>${label}</td>
+        <td><code>${symbol}</code></td>
+        <td>${res?res.date:'—'}</td>
+        <td>${res?fmt(res.close):'—'}</td>
+        <td style="color:${res?(res.diff>0?'#34d399':res.diff<0?'#f87171':'#9ca3af'):'#9ca3af'}">${res?sign+fmt(res.diff)+' ('+sign+fmt(res.pct)+'%)':'—'}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    async function loadDashboard() {
+      const tbody = document.getElementById('av-body');
+      tbody.innerHTML = '';
+      for (const item of symbols) {
+        try {
+          const res = await fetchDaily(item.symbol);
+          renderRow(item, res, tbody);
+        } catch (e) {
+          renderRow(item, null, tbody);
+          console.error(item.symbol, e);
+        }
+      }
+    }
+    loadDashboard();
+  </script>
 </body>
 </html>

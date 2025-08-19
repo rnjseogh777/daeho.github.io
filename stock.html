@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stock Market — 내 홈페이지</title>
+  <meta name="description" content="주요 시장 지표와 포트폴리오를 요약하는 페이지" />
+  <style>
+    :root{
+      --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9ca3af;
+      --accent:#60a5fa; --accent-2:#34d399;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(1200px 800px at 80% -10%,#1f2937 0%,#0b1225 50%,#020617 100%);color:var(--text);}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline;opacity:.9}
+    .container{max-width:1100px;margin:0 auto;padding:20px}
+    header{position:sticky;top:0;backdrop-filter:saturate(140%) blur(8px);background:#030712aa;border-bottom:1px solid #111827;z-index:50}
+    nav{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .brand{font-weight:800;letter-spacing:.2px}
+    .brand span{color:var(--accent)}
+    .navlinks{display:flex;gap:18px;flex-wrap:wrap}
+    .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid #1f2937;background:#0b1220}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
+    .hero{padding:64px 0}
+    .hero h1{font-size:44px;margin:0 0 10px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:18px}
+    @media(min-width:768px){.grid.cols-2{grid-template-columns:repeat(2,1fr)}}
+    section{padding:28px 0}
+    .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid #111827;border-radius:18px;padding:20px}
+    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+    .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.8}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #1f2937;text-align:left}
+    .footer{border-top:1px solid #111827;margin-top:40px;padding-top:20px;color:#9aa3b2}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="brand">내 홈페이지<span class="logo-dot" style="width:10px;height:10px;background:var(--accent-2);display:inline-block;border-radius:50%;margin-left:6px"></span></div>
+        <div class="navlinks">
+          <a href="/">Home</a>
+          <a href="/stock.html">Stock Market</a>
+          <a href="/#contact" class="btn primary">문의하기</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Stock Market</h1>
+      <p class="muted">주요 지표/자산을 요약해 보여주는 전용 페이지입니다. 이후에 차트나 API를 붙이면 확장할 수 있어요.</p>
+    </section>
+
+    <section>
+      <div class="section-title"><div class="bar"></div><h2>간단 요약</h2></div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>관심 티커</h3>
+          <p class="muted">예: KOSPI, KOSDAQ, S&P 500, NASDAQ, BTC, ETH…</p>
+        </div>
+        <div class="card">
+          <h3>메모</h3>
+          <p class="muted">시장 코멘트를 간단히 기록하세요.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title"><div class="bar"></div><h2>보유/관심 목록</h2></div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr><th>자산</th><th>티커/코드</th><th>비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>KOSPI</td><td>KOSPI</td><td class="muted">지수</td></tr>
+            <tr><td>S&P 500</td><td>^GSPC</td><td class="muted">지수</td></tr>
+            <tr><td>Bitcoin</td><td>BTC</td><td class="muted">암호자산</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="footer">
+      <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
+    </div>
+  </main>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

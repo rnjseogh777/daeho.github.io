@@ -184,3 +184,39 @@
   </script>
 </body>
 </html>
+
+<!-- Tesla 최신 뉴스 -->
+<section class="card" id="news" style="margin-top:18px">
+  <div class="section-title"><div class="bar"></div><h2 style="margin:0">Tesla 최신 뉴스</h2></div>
+  <ul id="news-list" style="list-style:none;padding:0;margin:8px 0;display:grid;gap:10px">
+    <li class="muted">불러오는 중…</li>
+  </ul>
+  <div class="hint" style="font-size:12px;color:#9aa3b2">* 매일 1회 자동 갱신</div>
+</section>
+
+<script>
+  async function loadTeslaNews() {
+    const list = document.getElementById('news-list');
+    try {
+      // 커스텀 도메인(rfp.kr)이면 절대경로 사용
+      const res = await fetch('/news/tesla.json', { cache: 'no-cache' });
+      if (!res.ok) throw new Error('뉴스 파일을 불러오지 못했습니다.');
+      const items = await res.json(); // [{title, link, pubDate}, ...]
+      list.innerHTML = '';
+      (items.slice(0,5)).forEach((it) => {
+        const d = new Date(it.pubDate);
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <a href="${it.link}" target="_blank" rel="noopener" style="font-weight:600">${it.title}</a><br/>
+          <span class="muted" style="font-size:12px">${d.toLocaleString('ko-KR')}</span>
+        `;
+        list.appendChild(li);
+      });
+      if (!items.length) list.innerHTML = '<li class="muted">최근 24시간 내 기사 없음</li>';
+    } catch (e) {
+      list.innerHTML = '<li class="muted">뉴스를 불러오지 못했습니다.</li>';
+      console.error(e);
+    }
+  }
+  loadTeslaNews();
+</script>

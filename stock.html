@@ -1,16 +1,17 @@
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Stock Market — 내 홈페이지</title>
-  <meta name="description" content="주요 지표/자산을 요약해 보여주는 전용 페이지" />
+  <meta name="description" content="S&P 500 종목을 인터랙티브 차트로 탐색" />
   <style>
     :root{ --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --accent-2:#34d399; }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(1200px 800px at 80% -10%,#1f2937 0%,#0b1225 50%,#020617 100%);color:var(--text)}
     a{color:var(--accent);text-decoration:none}
     a:hover{text-decoration:underline;opacity:.9}
-    .container{max-width:1100px;margin:0 auto;padding:20px}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
     header{position:sticky;top:0;backdrop-filter:saturate(140%) blur(8px);background:#030712aa;border-bottom:1px solid #111827;z-index:50}
     nav{display:flex;justify-content:space-between;align-items:center;gap:16px}
     .brand{font-weight:800;letter-spacing:.2px}
@@ -18,17 +19,15 @@
     .navlinks{display:flex;gap:18px;flex-wrap:wrap}
     .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid #1f2937;background:#0b1220}
     .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
-    .hero{padding:42px 0}
     .grid{display:grid;gap:18px}
-    @media(min-width:768px){.grid.cols-2{grid-template-columns:repeat(2,1fr)}}
-    section{padding:28px 0}
-    .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid #111827;border-radius:18px;padding:20px}
-    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+    @media(min-width:1024px){ .grid.cols-2{grid-template-columns:280px 1fr} }
+    .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid #111827;border-radius:18px;padding:18px}
+    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.8}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid #1f2937;text-align:left}
-    .muted{color:var(--muted)}
-    .footer{border-top:1px solid #111827;margin-top:40px;padding-top:20px;color:#9aa3b2}
+    label{font-size:13px;color:#aab3c2;margin-bottom:6px;display:block}
+    select,input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #1f2937;background:#0b1220;color:var(--text)}
+    .hint{font-size:12px;color:#9aa3b2;margin-top:6px}
+    .footer{border-top:1px solid #111827;margin-top:28px;padding-top:16px;color:#9aa3b2}
   </style>
 </head>
 <body>
@@ -46,113 +45,142 @@
   </header>
 
   <main class="container">
-    <!-- ① 위젯: TradingView 심볼 오버뷰 (여러 자산 동시 표시) -->
-    <section class="hero">
-      <div class="card">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-          {
-            "symbols": [
-              ["KOSPI","TVC:KOSPI|1D"],
-              ["삼성전자","KRX:005930|1D"],
-              ["S&P 500","FOREXCOM:SPXUSD|1D"],
-              ["NASDAQ 100","NASDAQ:NDX|1D"],
-              ["Bitcoin","CRYPTO:BTCUSD|1D"]
-            ],
-            "width": "100%",
-            "height": "420",
-            "locale": "ko",
-            "colorTheme": "dark",
-            "isTransparent": true,
-            "showVolume": false,
-            "showMA": true,
-            "autosize": true
-          }
-          </script>
-        </div>
-      </div>
-    </section>
+    <div class="grid cols-2">
+      <!-- 왼쪽: S&P 컨트롤 패널 -->
+      <aside class="card">
+        <div class="section-title"><div class="bar"></div><h2 style="margin:0">S&P 500 탐색</h2></div>
 
-    <!-- ② 대시보드: Alpha Vantage 데이터(서버리스 프록시 필요) -->
-    <section>
-      <div class="section-title"><div class="bar"></div><h2>시장 대시보드</h2></div>
-      <div class="card">
-        <p class="muted">아래 표는 Alpha Vantage의 일일 데이터(Time Series Daily)를 예시로 렌더링합니다. <strong>API 키는 프론트에 직접 노출하지 마세요.</strong> Cloudflare Workers/Netlify Functions 등 서버리스 프록시를 사용해 호출하세요.</p>
-        <table>
-          <thead>
-            <tr><th>자산명</th><th>심볼</th><th>날짜</th><th>종가</th><th>전일 대비</th></tr>
-          </thead>
-          <tbody id="av-body">
-            <tr><td colspan="5" class="muted">불러오는 중…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+        <div style="display:grid;gap:12px">
+          <div>
+            <label for="sp-select">대표 종목(드롭다운)</label>
+            <select id="sp-select">
+              <!-- 값은 TradingView 심볼 표기법 -->
+              <option value="AMEX:SPY" selected>SPY — S&P 500 ETF</option>
+              <option value="NASDAQ:AAPL">AAPL — Apple</option>
+              <option value="NASDAQ:MSFT">MSFT — Microsoft</option>
+              <option value="NASDAQ:NVDA">NVDA — NVIDIA</option>
+              <option value="NASDAQ:GOOGL">GOOGL — Alphabet (Class A)</option>
+              <option value="NASDAQ:AMZN">AMZN — Amazon</option>
+              <option value="NASDAQ:META">META — Meta</option>
+              <option value="NYSE:BRK.B">BRK.B — Berkshire Hathaway B</option>
+              <option value="NYSE:JPM">JPM — JPMorgan Chase</option>
+              <option value="NYSE:UNH">UNH — UnitedHealth</option>
+              <option value="NYSE:XOM">XOM — Exxon Mobil</option>
+              <option value="NASDAQ:AVGO">AVGO — Broadcom</option>
+              <option value="NYSE:JNJ">JNJ — Johnson & Johnson</option>
+              <option value="NASDAQ:TSLA">TSLA — Tesla</option>
+              <option value="NYSE:PG">PG — Procter & Gamble</option>
+              <option value="NYSE:LLY">LLY — Eli Lilly</option>
+              <option value="NYSE:V">V — Visa</option>
+              <option value="NYSE:HD">HD — Home Depot</option>
+              <option value="NYSE:KO">KO — Coca-Cola</option>
+              <option value="NASDAQ:PEP">PEP — PepsiCo</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="ticker-input">티커 직접 입력 (예: AAPL, MSFT, BRK.B)</label>
+            <input id="ticker-input" type="text" placeholder="티커 입력 후 Enter" />
+            <div class="hint">특수 케이스: 버크셔 B는 <code>BRK.B</code>, 구글은 <code>GOOGL</code>.</div>
+          </div>
+
+          <div>
+            <label for="interval-select">차트 간격</label>
+            <select id="interval-select">
+              <option value="D" selected>일봉 (D)</option>
+              <option value="W">주봉 (W)</option>
+              <option value="60">60분</option>
+              <option value="15">15분</option>
+              <option value="5">5분</option>
+              <option value="1">1분</option>
+            </select>
+          </div>
+
+          <p class="hint">※ 실시간/지연 여부는 거래소 정책에 따릅니다.</p>
+        </div>
+      </aside>
+
+      <!-- 오른쪽: Advanced Chart -->
+      <section class="card" style="padding:0;min-height:520px">
+        <div id="tvchart" style="height:560px"></div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
+    </div>
   </main>
 
-  <div class="container"><div class="footer">
-    <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
-  </div></div>
-
+  <!-- TradingView Advanced Chart -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // ▼▼▼ 서버리스 프록시 엔드포인트를 여기에 입력하세요 (예: Cloudflare Workers) ▼▼▼
-    const WORKER_URL = 'https://YOUR-WORKER-SUBDOMAIN.workers.dev';
+    let tv; // TradingView 위젯 인스턴스
 
-    // 조회할 심볼 목록 (Alpha Vantage 주식 심볼 규칙: KRX는 ".KS")
-    const symbols = [
-      { label: '삼성전자', symbol: '005930.KS' },
-      { label: 'Apple', symbol: 'AAPL' },
-      { label: 'Tesla', symbol: 'TSLA' }
-    ];
+    function initChart(symbol = "AMEX:SPY", interval = "D") {
+      // 기존 위젯이 있으면 제거 후 재생성 (간격 변경 시 깔끔하게)
+      const container = document.getElementById("tvchart");
+      container.innerHTML = "";
 
-    async function fetchDaily(symbol) {
-      const url = `${WORKER_URL}?symbol=${encodeURIComponent(symbol)}`;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error('API 응답 오류');
-      const json = await resp.json();
-      const series = json['Time Series (Daily)'] || json['Time Series (Daily Adjusted)'];
-      if (!series) throw new Error('일별 시계열 데이터가 없습니다');
-      const dates = Object.keys(series).sort().reverse();
-      const latest = series[dates[0]];
-      const prev = series[dates[1]];
-      const close = parseFloat(latest['4. close'] || latest['5. adjusted close']);
-      const prevClose = parseFloat(prev['4. close'] || prev['5. adjusted close']);
-      const diff = close - prevClose;
-      const pct = (diff / prevClose) * 100;
-      return { date: dates[0], close, diff, pct };
+      tv = new TradingView.widget({
+        container_id: "tvchart",
+        symbol,                       // 기본 종목
+        interval,                     // D/W/60/15/5/1 등
+        timezone: "Asia/Seoul",
+        theme: "dark",
+        style: "1",                   // 1=캔들
+        withdateranges: true,
+        hide_side_toolbar: false,
+        allow_symbol_change: true,    // 위젯 내에서도 심볼 변경 가능
+        autosize: true,
+        locale: "ko",
+        // 워치리스트(빠른 전환용)
+        watchlist: [
+          "AMEX:SPY","NASDAQ:AAPL","NASDAQ:MSFT","NASDAQ:NVDA","NASDAQ:GOOGL",
+          "NASDAQ:AMZN","NASDAQ:META","NYSE:BRK.B","NYSE:JPM","NYSE:UNH",
+          "NYSE:XOM","NASDAQ:AVGO","NYSE:JNJ","NASDAQ:TSLA","NYSE:PG","NYSE:LLY"
+        ],
+        // 차트 툴바에서 지표 추가 가능. 초기 지표를 원하는 경우 studies 옵션 사용 가능.
+      });
     }
 
-    function renderRow({ label, symbol }, res, tbody) {
-      const tr = document.createElement('tr');
-      const fmt = (n) => (n===null||Number.isNaN(n) ? '—' : n.toLocaleString(undefined,{maximumFractionDigits:2}));
-      const sign = res && res.diff !== undefined ? (res.diff>0?'+':'') : '';
-      tr.innerHTML = `
-        <td>${label}</td>
-        <td><code>${symbol}</code></td>
-        <td>${res?res.date:'—'}</td>
-        <td>${res?fmt(res.close):'—'}</td>
-        <td style="color:${res?(res.diff>0?'#34d399':res.diff<0?'#f87171':'#9ca3af'):'#9ca3af'}">${res?sign+fmt(res.diff)+' ('+sign+fmt(res.pct)+'%)':'—'}</td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-    async function loadDashboard() {
-      const tbody = document.getElementById('av-body');
-      tbody.innerHTML = '';
-      for (const item of symbols) {
-        try {
-          const res = await fetchDaily(item.symbol);
-          renderRow(item, res, tbody);
-        } catch (e) {
-          renderRow(item, null, tbody);
-          console.error(item.symbol, e);
-        }
+    // 드롭다운/검색/간격 이벤트
+    function setSymbol(symbol) {
+      if (!symbol) return;
+      const apply = () => tv.chart().setSymbol(symbol);
+      if (tv && typeof tv.onChartReady === "function") {
+        tv.onChartReady(apply);
+      } else {
+        // 아직 준비 전이면 재초기화로 보장
+        initChart(symbol, document.getElementById('interval-select').value);
       }
     }
-    loadDashboard();
+
+    // 최초 로드
+    initChart();
+
+    // 드롭다운으로 심볼 변경
+    document.getElementById('sp-select').addEventListener('change', (e) => {
+      setSymbol(e.target.value);
+    });
+
+    // 티커 직접 입력 후 Enter → 심볼 변경
+    document.getElementById('ticker-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const raw = e.target.value.trim().toUpperCase();
+        if (!raw) return;
+        // 사용자 친화: 단일 티커만 입력해도 대다수는 자동 매핑됨(AAPL 등)
+        // 특수 케이스 예외(이미 안내): BRK.B 등은 점 포함으로 입력 필요
+        setSymbol(raw);
+      }
+    });
+
+    // 차트 간격 변경
+    document.getElementById('interval-select').addEventListener('change', (e) => {
+      const currentSymbol = tv && tv.symbolInterval ? tv.symbolInterval().symbol : "AMEX:SPY";
+      initChart(currentSymbol, e.target.value);
+    });
   </script>
 </body>
 </html>

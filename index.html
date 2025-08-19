@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내 홈페이지</title>
+  <meta name="description" content="심플하고 반응형인 온라인 홈페이지 스타터 템플릿" />
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --panel:#111827ee; /* gray-900 */
+      --text:#e5e7eb; /* gray-200 */
+      --muted:#9ca3af; /* gray-400 */
+      --accent:#60a5fa; /* blue-400 */
+      --accent-2:#34d399; /* green-400 */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(1200px 800px at 80% -10%,#1f2937 0%,#0b1225 50%,#020617 100%);color:var(--text);}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{opacity:.9;text-decoration:underline}
+    .container{max-width:1100px;margin:0 auto;padding:20px}
+    header{position:sticky;top:0;backdrop-filter:saturate(140%) blur(8px);background:#030712aa;border-bottom:1px solid #111827;z-index:50}
+    nav{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .brand{font-weight:800;letter-spacing:.2px}
+    .brand span{color:var(--accent)}
+    .navlinks{display:flex;gap:18px;flex-wrap:wrap}
+    .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid #1f2937;background:#0b1220}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
+    .btn.ghost{background:#0b122000;border-color:#1f2937}
+    .hero{padding:80px 0}
+    .hero h1{font-size:40px;line-height:1.1;margin:0 0 12px}
+    .hero p{color:var(--muted);font-size:18px;margin:0 0 20px}
+    .grid{display:grid;gap:18px}
+    @media(min-width:768px){.grid.cols-3{grid-template-columns:repeat(3,1fr)}.grid.cols-2{grid-template-columns:repeat(2,1fr)} .hero h1{font-size:56px}}
+    section{padding:32px 0}
+    .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid #111827;border-radius:18px;padding:20px}
+    .card h3{margin:0 0 8px}
+    .muted{color:var(--muted)}
+    .tag{display:inline-block;background:#0b1220;border:1px solid #1f2937;border-radius:999px;padding:6px 10px;font-size:12px;color:#bcd7ff;margin-right:8px}
+    .footer{border-top:1px solid #111827;margin-top:40px;padding-top:20px;color:#9aa3b2}
+    /* simple fade-in */
+    [data-anim]{opacity:0;transform:translateY(8px);animation:fade 0.8s ease forwards;}
+    [data-anim="2"]{animation-delay:.15s}
+    [data-anim="3"]{animation-delay:.3s}
+    @keyframes fade{to{opacity:1;transform:none}}
+    .logo-dot{width:10px;height:10px;background:var(--accent-2);display:inline-block;border-radius:50%;margin-left:6px}
+    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+    .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.8}
+    .kbd{border:1px solid #1f2937;border-bottom-width:3px;border-radius:8px;padding:3px 6px;background:#0b1220}
+    form input,form textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #1f2937;background:#0b1220;color:var(--text)}
+    form textarea{min-height:120px}
+    form label{font-size:14px;color:#aab3c2}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="brand">내 홈페이지<span class="logo-dot"></span></div>
+        <div class="navlinks">
+          <a href="#about">소개</a>
+          <a href="#services">서비스</a>
+          <a href="#work">포트폴리오</a>
+          <a href="#contact" class="btn primary">문의하기</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="tag" data-anim>반응형 · 단일 파일 · 즉시 배포</p>
+      <h1 data-anim="2">심플하지만 강한<br/>나만의 온라인 홈페이지</h1>
+      <p data-anim="3">아래 섹션의 텍스트만 바꾸면 바로 사용 가능합니다. GitHub Pages, Netlify, Vercel 등 어디든 배포할 수 있어요.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap" data-anim="3">
+        <a class="btn primary" href="#services">무엇을 제공하나요</a>
+        <a class="btn ghost" href="#work">작업물 보기</a>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="section-title"><div class="bar"></div><h2>소개</h2></div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>브랜드 메시지</h3>
+          <p class="muted">당신 혹은 회사의 핵심 가치를 한두 문장으로 요약해보세요. 예: "데이터 기반 컨설팅으로 실행 가능한 성장을 만듭니다."</p>
+        </div>
+        <div class="card">
+          <h3>강점 & 차별점</h3>
+          <ul class="muted">
+            <li>핵심 솔루션/서비스 1</li>
+            <li>핵심 솔루션/서비스 2</li>
+            <li>핵심 솔루션/서비스 3</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="services">
+      <div class="section-title"><div class="bar"></div><h2>서비스</h2></div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>서비스 A</h3>
+          <p class="muted">간단한 설명을 적어주세요. 어떤 문제를 해결하고, 무엇이 다른지.</p>
+        </div>
+        <div class="card">
+          <h3>서비스 B</h3>
+          <p class="muted">가격대나 리드타임, 제공 산출물 등 핵심 정보 위주로.</p>
+        </div>
+        <div class="card">
+          <h3>서비스 C</h3>
+          <p class="muted">필요 시 "자주 묻는 질문"을 링크로 연결해도 좋아요.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="work">
+      <div class="section-title"><div class="bar"></div><h2>포트폴리오</h2></div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>프로젝트 1</h3>
+          <p class="muted">간단 설명 · 결과 링크</p>
+        </div>
+        <div class="card">
+          <h3>프로젝트 2</h3>
+          <p class="muted">간단 설명 · 결과 링크</p>
+        </div>
+        <div class="card">
+          <h3>프로젝트 3</h3>
+          <p class="muted">간단 설명 · 결과 링크</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="section-title"><div class="bar"></div><h2>문의하기</h2></div>
+      <div class="grid cols-2">
+        <div class="card">
+          <p class="muted">이메일, 전화번호, 회사 주소 등 연락처를 적어주세요.</p>
+          <p><strong>이메일</strong>: <a href="mailto:hello@example.com">hello@example.com</a><br/>
+             <strong>전화</strong>: 010-0000-0000</p>
+          <p class="muted">* 동의 없이 개인정보를 수집하지 않습니다.</p>
+        </div>
+        <div class="card">
+          <form onsubmit="alert('폼 처리는 사용 중인 플랫폼에 맞춰 연동하세요. (예: Formspree, 서버, Google Apps Script)'); return false;">
+            <label>이름</label>
+            <input placeholder="홍길동" />
+            <label style="margin-top:10px;display:block">이메일</label>
+            <input type="email" placeholder="you@example.com" />
+            <label style="margin-top:10px;display:block">메시지</label>
+            <textarea placeholder="문의 내용을 적어주세요"></textarea>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" type="submit">보내기</button>
+              <span class="kbd">⌘</span><span class="kbd">Enter</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

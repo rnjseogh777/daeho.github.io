@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Stock Market — 내 홈페이지</title>
-  <meta name="description" content="S&P 500 종목을 인터랙티브 차트로 탐색" />
+  <meta name="description" content="S&P 500 대표 종목 인터랙티브 차트 & 최신 뉴스" />
   <style>
-    :root{ --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --accent-2:#34d399; }
+    :root{ --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9aa3af; --accent:#60a5fa; --accent-2:#34d399; }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(1200px 800px at 80% -10%,#1f2937 0%,#0b1225 50%,#020617 100%);color:var(--text)}
     a{color:var(--accent);text-decoration:none}
@@ -20,14 +20,24 @@
     .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid #1f2937;background:#0b1220}
     .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
     .grid{display:grid;gap:18px}
-    @media(min-width:1024px){ .grid.cols-2{grid-template-columns:280px 1fr} }
+    @media(min-width:1024px){ .grid.cols-2{grid-template-columns:300px 1fr} }
     .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid #111827;border-radius:18px;padding:18px}
     .section-title{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.8}
-    label{font-size:13px;color:#aab3c2;margin-bottom:6px;display:block}
-    select,input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #1f2937;background:#0b1220;color:var(--text)}
-    .hint{font-size:12px;color:#9aa3b2;margin-top:6px}
+    .muted{color:#9aa3b2}
     .footer{border-top:1px solid #111827;margin-top:28px;padding-top:16px;color:#9aa3b2}
+    /* 왼쪽 리스트 */
+    #filter{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #1f2937;background:#0b1220;color:var(--text);margin-bottom:10px}
+    #company-list{list-style:none;padding:0;margin:0;max-height:540px;overflow:auto}
+    #company-list li{padding:10px 12px;border:1px solid #1f2937;border-radius:12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0b1220}
+    #company-list li:hover{border-color:#243043}
+    #company-list li.active{outline:2px solid var(--accent); background:#0c1625}
+    .ticker{font-weight:700}
+    .name{font-size:12px;color:#9aa3b2}
+    /* 뉴스 리스트 */
+    #news-list{list-style:none;padding:0;margin:8px 0;display:grid;gap:10px}
+    #news-list li a{font-weight:600}
+    #news-list .date{font-size:12px;color:#9aa3b2}
   </style>
 </head>
 <body>
@@ -46,63 +56,26 @@
 
   <main class="container">
     <div class="grid cols-2">
-      <!-- 왼쪽: S&P 컨트롤 패널 -->
+      <!-- 좌: S&P 대표 기업 목록 -->
       <aside class="card">
-        <div class="section-title"><div class="bar"></div><h2 style="margin:0">S&P 500 탐색</h2></div>
-
-        <div style="display:grid;gap:12px">
-          <div>
-            <label for="sp-select">대표 종목(드롭다운)</label>
-            <select id="sp-select">
-              <!-- 값은 TradingView 심볼 표기법 -->
-              <option value="AMEX:SPY" selected>SPY — S&P 500 ETF</option>
-              <option value="NASDAQ:AAPL">AAPL — Apple</option>
-              <option value="NASDAQ:MSFT">MSFT — Microsoft</option>
-              <option value="NASDAQ:NVDA">NVDA — NVIDIA</option>
-              <option value="NASDAQ:GOOGL">GOOGL — Alphabet (Class A)</option>
-              <option value="NASDAQ:AMZN">AMZN — Amazon</option>
-              <option value="NASDAQ:META">META — Meta</option>
-              <option value="NYSE:BRK.B">BRK.B — Berkshire Hathaway B</option>
-              <option value="NYSE:JPM">JPM — JPMorgan Chase</option>
-              <option value="NYSE:UNH">UNH — UnitedHealth</option>
-              <option value="NYSE:XOM">XOM — Exxon Mobil</option>
-              <option value="NASDAQ:AVGO">AVGO — Broadcom</option>
-              <option value="NYSE:JNJ">JNJ — Johnson & Johnson</option>
-              <option value="NASDAQ:TSLA">TSLA — Tesla</option>
-              <option value="NYSE:PG">PG — Procter & Gamble</option>
-              <option value="NYSE:LLY">LLY — Eli Lilly</option>
-              <option value="NYSE:V">V — Visa</option>
-              <option value="NYSE:HD">HD — Home Depot</option>
-              <option value="NYSE:KO">KO — Coca-Cola</option>
-              <option value="NASDAQ:PEP">PEP — PepsiCo</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="ticker-input">티커 직접 입력 (예: AAPL, MSFT, BRK.B)</label>
-            <input id="ticker-input" type="text" placeholder="티커 입력 후 Enter" />
-            <div class="hint">특수 케이스: 버크셔 B는 <code>BRK.B</code>, 구글은 <code>GOOGL</code>.</div>
-          </div>
-
-          <div>
-            <label for="interval-select">차트 간격</label>
-            <select id="interval-select">
-              <option value="D" selected>일봉 (D)</option>
-              <option value="W">주봉 (W)</option>
-              <option value="60">60분</option>
-              <option value="15">15분</option>
-              <option value="5">5분</option>
-              <option value="1">1분</option>
-            </select>
-          </div>
-
-          <p class="hint">※ 실시간/지연 여부는 거래소 정책에 따릅니다.</p>
-        </div>
+        <div class="section-title"><div class="bar"></div><h2 style="margin:0">S&P 대표 종목</h2></div>
+        <input id="filter" type="text" placeholder="티커/이름 검색 (예: AAPL, NVIDIA)" />
+        <ul id="company-list"></ul>
+        <p class="muted" style="margin-top:6px">클릭하면 오른쪽에 <b>차트 & 최신 뉴스(5)</b>가 바뀝니다.</p>
       </aside>
 
-      <!-- 오른쪽: Advanced Chart -->
-      <section class="card" style="padding:0;min-height:520px">
-        <div id="tvchart" style="height:560px"></div>
+      <!-- 우: 차트 + 뉴스 -->
+      <section class="card" style="padding:0">
+        <div style="padding:18px 18px 0">
+          <div class="section-title"><div class="bar"></div><h2 id="panel-title" style="margin:0">SPY — S&P 500 ETF</h2></div>
+        </div>
+        <div id="tvchart" style="height:520px"></div>
+
+        <div style="padding:0 18px 18px">
+          <div class="section-title" style="margin-top:8px"><div class="bar"></div><h3 style="margin:0">최신 뉴스</h3></div>
+          <ul id="news-list"><li class="muted">좌측에서 종목을 선택하세요.</li></ul>
+          <div class="muted" style="font-size:12px">* 매일 1회 자동 갱신 (Google News RSS 기반)</div>
+        </div>
       </section>
     </div>
 
@@ -112,111 +85,121 @@
   </main>
 
   <!-- TradingView Advanced Chart -->
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    let tv; // TradingView 위젯 인스턴스
+    // ===== 좌측 목록 데이터 (티커=key, 차트심볼=symbol, 표시이름=name) =====
+    const COMPANIES = [
+      { key: 'SPY',   symbol: 'AMEX:SPY',   name: 'S&P 500 ETF' },
+      { key: 'AAPL',  symbol: 'NASDAQ:AAPL',name: 'Apple' },
+      { key: 'MSFT',  symbol: 'NASDAQ:MSFT',name: 'Microsoft' },
+      { key: 'NVDA',  symbol: 'NASDAQ:NVDA',name: 'NVIDIA' },
+      { key: 'GOOGL', symbol: 'NASDAQ:GOOGL',name: 'Alphabet (Class A)' },
+      { key: 'AMZN',  symbol: 'NASDAQ:AMZN',name: 'Amazon' },
+      { key: 'META',  symbol: 'NASDAQ:META',name: 'Meta Platforms' },
+      { key: 'BRK.B', symbol: 'NYSE:BRK.B', name: 'Berkshire Hathaway B' },
+      { key: 'JPM',   symbol: 'NYSE:JPM',   name: 'JPMorgan Chase' },
+      { key: 'UNH',   symbol: 'NYSE:UNH',   name: 'UnitedHealth' },
+      { key: 'XOM',   symbol: 'NYSE:XOM',   name: 'Exxon Mobil' },
+      { key: 'AVGO',  symbol: 'NASDAQ:AVGO',name: 'Broadcom' },
+      { key: 'JNJ',   symbol: 'NYSE:JNJ',   name: 'Johnson & Johnson' },
+      { key: 'TSLA',  symbol: 'NASDAQ:TSLA',name: 'Tesla' },
+      { key: 'V',     symbol: 'NYSE:V',     name: 'Visa' },
+      { key: 'PG',    symbol: 'NYSE:PG',    name: 'Procter & Gamble' },
+      { key: 'LLY',   symbol: 'NYSE:LLY',   name: 'Eli Lilly' },
+      { key: 'HD',    symbol: 'NYSE:HD',    name: 'Home Depot' },
+      { key: 'KO',    symbol: 'NYSE:KO',    name: 'Coca-Cola' },
+      { key: 'PEP',   symbol: 'NASDAQ:PEP', name: 'PepsiCo' }
+    ];
 
+    // 프로젝트 페이지/커스텀 도메인 모두 호환되는 news 경로 계산
+    const basePrefix = (() => {
+      const isGithubPages = location.hostname.endsWith('github.io');
+      const m = location.pathname.match(/^\/([^\/]+)\//);
+      return (isGithubPages && m) ? `/${m[1]}` : '';
+    })();
+    const newsURL = (key) => `${basePrefix}/news/${encodeURIComponent(key)}.json`;
+
+    // 좌측 목록 렌더 + 필터
+    const listEl = document.getElementById('company-list');
+    const filterEl = document.getElementById('filter');
+    function renderList(q='') {
+      const needle = q.trim().toLowerCase();
+      listEl.innerHTML = '';
+      COMPANIES
+        .filter(c => !needle || c.key.toLowerCase().includes(needle) || c.name.toLowerCase().includes(needle))
+        .forEach(c => {
+          const li = document.createElement('li');
+          li.dataset.ticker = c.key;
+          li.dataset.symbol = c.symbol;
+          li.innerHTML = `<span><span class="ticker">${c.key}</span> <span class="name">— ${c.name}</span></span>`;
+          li.addEventListener('click', () => selectCompany(c));
+          listEl.appendChild(li);
+        });
+    }
+    filterEl.addEventListener('input', e => renderList(e.target.value));
+    renderList(); // 초기 렌더
+
+    // TradingView 차트
+    let tv;
     function initChart(symbol = "AMEX:SPY", interval = "D") {
-      // 기존 위젯이 있으면 제거 후 재생성 (간격 변경 시 깔끔하게)
       const container = document.getElementById("tvchart");
       container.innerHTML = "";
-
       tv = new TradingView.widget({
         container_id: "tvchart",
-        symbol,                       // 기본 종목
-        interval,                     // D/W/60/15/5/1 등
-        timezone: "Asia/Seoul",
-        theme: "dark",
-        style: "1",                   // 1=캔들
-        withdateranges: true,
-        hide_side_toolbar: false,
-        allow_symbol_change: true,    // 위젯 내에서도 심볼 변경 가능
-        autosize: true,
-        locale: "ko",
-        // 워치리스트(빠른 전환용)
-        watchlist: [
-          "AMEX:SPY","NASDAQ:AAPL","NASDAQ:MSFT","NASDAQ:NVDA","NASDAQ:GOOGL",
-          "NASDAQ:AMZN","NASDAQ:META","NYSE:BRK.B","NYSE:JPM","NYSE:UNH",
-          "NYSE:XOM","NASDAQ:AVGO","NYSE:JNJ","NASDAQ:TSLA","NYSE:PG","NYSE:LLY"
-        ],
-        // 차트 툴바에서 지표 추가 가능. 초기 지표를 원하는 경우 studies 옵션 사용 가능.
+        symbol, interval, timezone: "Asia/Seoul",
+        theme: "dark", style: "1", withdateranges: true,
+        hide_side_toolbar: false, allow_symbol_change: true,
+        autosize: true, locale: "ko",
+        watchlist: COMPANIES.map(c => c.symbol)
       });
     }
+    initChart();
 
-    // 드롭다운/검색/간격 이벤트
-    function setSymbol(symbol) {
-      if (!symbol) return;
-      const apply = () => tv.chart().setSymbol(symbol);
-      if (tv && typeof tv.onChartReady === "function") {
-        tv.onChartReady(apply);
-      } else {
-        // 아직 준비 전이면 재초기화로 보장
-        initChart(symbol, document.getElementById('interval-select').value);
+    // 뉴스 로드
+    async function loadNews(key) {
+      const ul = document.getElementById('news-list');
+      ul.innerHTML = '<li class="muted">불러오는 중…</li>';
+      try {
+        const res = await fetch(newsURL(key), { cache: 'no-cache' });
+        if (!res.ok) throw new Error('뉴스 파일이 없습니다.');
+        const items = await res.json();
+        ul.innerHTML = '';
+        (items.slice(0,5)).forEach(it => {
+          const d = new Date(it.pubDate);
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${it.link}" target="_blank" rel="noopener">${it.title}</a><br/><span class="date">${d.toLocaleString('ko-KR')}</span>`;
+          ul.appendChild(li);
+        });
+        if (!items.length) ul.innerHTML = '<li class="muted">최근 24시간 내 기사 없음</li>';
+      } catch (e) {
+        ul.innerHTML = '<li class="muted">뉴스를 불러오지 못했습니다. (Actions 세팅 확인)</li>';
+        console.error(e);
       }
     }
 
-    // 최초 로드
-    initChart();
+    // 선택 동작: 리스트 active, 타이틀, 차트, 뉴스 동시 업데이트
+    function selectCompany(c) {
+      // active 표시
+      Array.from(listEl.children).forEach(li => li.classList.toggle('active', li.dataset.ticker === c.key));
+      document.getElementById('panel-title').textContent = `${c.key} — ${c.name}`;
 
-    // 드롭다운으로 심볼 변경
-    document.getElementById('sp-select').addEventListener('change', (e) => {
-      setSymbol(e.target.value);
-    });
-
-    // 티커 직접 입력 후 Enter → 심볼 변경
-    document.getElementById('ticker-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const raw = e.target.value.trim().toUpperCase();
-        if (!raw) return;
-        // 사용자 친화: 단일 티커만 입력해도 대다수는 자동 매핑됨(AAPL 등)
-        // 특수 케이스 예외(이미 안내): BRK.B 등은 점 포함으로 입력 필요
-        setSymbol(raw);
+      // 차트 심볼 변경
+      const interval = (tv && tv.symbolInterval) ? tv.symbolInterval().interval : "D";
+      if (tv && typeof tv.onChartReady === "function") {
+        tv.onChartReady(() => tv.chart().setSymbol(c.symbol));
+      } else {
+        initChart(c.symbol, interval);
       }
-    });
 
-    // 차트 간격 변경
-    document.getElementById('interval-select').addEventListener('change', (e) => {
-      const currentSymbol = tv && tv.symbolInterval ? tv.symbolInterval().symbol : "AMEX:SPY";
-      initChart(currentSymbol, e.target.value);
-    });
+      // 뉴스 로드
+      loadNews(c.key);
+    }
+
+    // 초기 선택: SPY
+    selectCompany(COMPANIES[0]);
   </script>
 </body>
 </html>
 
-<!-- Tesla 최신 뉴스 -->
-<section class="card" id="news" style="margin-top:18px">
-  <div class="section-title"><div class="bar"></div><h2 style="margin:0">Tesla 최신 뉴스</h2></div>
-  <ul id="news-list" style="list-style:none;padding:0;margin:8px 0;display:grid;gap:10px">
-    <li class="muted">불러오는 중…</li>
-  </ul>
-  <div class="hint" style="font-size:12px;color:#9aa3b2">* 매일 1회 자동 갱신</div>
-</section>
-
-<script>
-  async function loadTeslaNews() {
-    const list = document.getElementById('news-list');
-    try {
-      // 커스텀 도메인(rfp.kr)이면 절대경로 사용
-      const res = await fetch('/news/tesla.json', { cache: 'no-cache' });
-      if (!res.ok) throw new Error('뉴스 파일을 불러오지 못했습니다.');
-      const items = await res.json(); // [{title, link, pubDate}, ...]
-      list.innerHTML = '';
-      (items.slice(0,5)).forEach((it) => {
-        const d = new Date(it.pubDate);
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <a href="${it.link}" target="_blank" rel="noopener" style="font-weight:600">${it.title}</a><br/>
-          <span class="muted" style="font-size:12px">${d.toLocaleString('ko-KR')}</span>
-        `;
-        list.appendChild(li);
-      });
-      if (!items.length) list.innerHTML = '<li class="muted">최근 24시간 내 기사 없음</li>';
-    } catch (e) {
-      list.innerHTML = '<li class="muted">뉴스를 불러오지 못했습니다.</li>';
-      console.error(e);
-    }
-  }
-  loadTeslaNews();
-</script>

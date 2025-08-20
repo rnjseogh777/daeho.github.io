@@ -50,7 +50,7 @@
     .pick-name{font-size:18px;font-weight:800}
     .pill{padding:6px 10px;border:1px solid #243043;border-radius:999px;background:#0b1220}
 
-    /* 사다리 */
+    /* 사다리 (데스크톱 기본) */
     #ladder-section .ladder-config{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
     #ladder-section .field{display:flex;flex-direction:column;gap:6px}
     #ladder-section input[type="number"],
@@ -70,6 +70,30 @@
     #ladder-section .toast{margin-top:6px;font-size:13px;color:#c7eefc;min-height:18px}
     #ladder-section .ladder-wrap{overflow:auto}
     #ladder-section svg{width:100%;min-width:560px;background:#08101b;border-radius:12px;border:1px solid #1f2937}
+
+    /* === 사다리 모바일 최적화 === */
+    @media (max-width: 768px){
+      #ladder-section .names-grid{
+        grid-template-columns: repeat(2, minmax(110px, 1fr)) !important;
+        gap: 10px;
+      }
+      #ladder-section .name-row{
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+      #ladder-section .name-row input{ width: 100%; }
+      #ladder-section .btn.good{ width: 100%; }
+      #ladder-section svg{
+        min-width: 0;     /* 고정 최소폭 해제 */
+        height: 320px;    /* 한 화면에 수납 */
+      }
+      #ladder-section .ladder-wrap{ margin-top: 6px; }
+    }
+    @media (max-width: 420px){
+      #ladder-section .names-grid{ grid-template-columns: 1fr !important; }
+      #ladder-section svg{ height: 300px; }
+    }
   </style>
 </head>
 <body>
@@ -162,7 +186,7 @@
 </main>
 
 <!-- Kakao Maps JS (services=Places/Geocoder), autoload=false 필수 -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=6096c5ef0866cfa555f1040e3f21bc62&libraries=services&autoload=false"></script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=KAKAO_JAVASCRIPT_KEY_HERE&libraries=services&autoload=false"></script>
 
 <script>
 (() => {
@@ -190,7 +214,8 @@
 
   function initMap(){
     const mapEl = document.getElementById('map');
-    map = new kakao.maps.Map(mapEl, { center: new kakao.maps.LatLng(37.523, 126.926), level: 3 });
+    // level:4 == 약 50m 축척
+    map = new kakao.maps.Map(mapEl, { center: new kakao.maps.LatLng(37.523, 126.926), level: 4 });
     places = new kakao.maps.services.Places(map);
 
     const geocoder = new kakao.maps.services.Geocoder();
@@ -335,7 +360,7 @@
     metaEl.textContent = `${pick.category_name} · ${pick.road_address_name || pick.address_name || ''}`;
   }
 
-  // ===== 사다리 v2 (IIFE 내부 네임스페이스로 충돌 제거) =====
+  // ===== 사다리 v2 (반응형) =====
   const LadderV2 = (() => {
     const MIN=3, MAX=8, DEFAULT_ROWS=12, RUNG_DENSITY=0.35;
     // DOM
@@ -358,10 +383,8 @@
     let ladder=null;              // {rows, cols, rungs:boolean[rows][cols-1]}
     let bottomResults=[];         // ['통과'|'꽝']
     let revealedByTopIndex={};    // { [topIdx]: {endCol,result} }
+    let lastSelectedIdx=null;     // 마지막 클릭한 참가자(리사이즈 시 경로 재계산용)
     let highlightPoints=null;
-
-    // SVG layout
-    const VIEW_W=1000, VIEW_H=620, MARGIN_L=90, MARGIN_R=90, TOP_Y=80, BOTTOM_Y=540;
 
     // helpers
     const shuffle = (a)=>{ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; };
@@ -372,7 +395,7 @@
     function renderNameInputs(){
       const namesEl = $names();
       namesEl.innerHTML='';
-      namesEl.style.gridTemplateColumns = `repeat(${playerCount}, minmax(160px,1fr))`;
+      namesEl.style.gridTemplateColumns = `repeat(${Math.min(playerCount,4)}, minmax(160px,1fr))`;
       for(let i=0;i<playerCount;i++){
         const row=document.createElement('div'); row.className='name-row';
         const inp=document.createElement('input'); inp.type='text';
@@ -395,95 +418,136 @@
       }
       return { rows, cols, rungs };
     }
-    function xPositions(){
-      const innerW = VIEW_W - MARGIN_L - MARGIN_R;
-      const gap = innerW / (playerCount - 1);
-      return Array.from({length:playerCount}, (_,i)=> MARGIN_L + gap*i);
-    }
-    function yRungPositions(){
-      const rows = ladder? ladder.rows : DEFAULT_ROWS;
-      const h = BOTTOM_Y - TOP_Y;
-      return Array.from({length:rows}, (_,r)=> TOP_Y + (h*(r+1))/(rows+1));
-    }
-    function tracePathPoints(startCol){
-      if(!ladder) return {points:[], endCol:startCol};
-      const xs = xPositions(), ys = yRungPositions();
-      let col=startCol; const pts=[];
-      pts.push([xs[col], TOP_Y]);
-      for(let r=0;r<ladder.rows;r++){
-        const y=ys[r];
-        pts.push([xs[col], y]);
-        if(ladder.rungs[r][col]){ pts.push([xs[col+1], y]); col=col+1; }
-        else if(col>0 && ladder.rungs[r][col-1]){ pts.push([xs[col-1], y]); col=col-1; }
-      }
-      pts.push([xs[col], BOTTOM_Y]);
-      return {points:pts, endCol:col};
-    }
 
+    // 반응형 드로잉
     function draw(){
       const svg = $svg();
-      const xs = xPositions(), ys = yRungPositions();
-      svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
-      svg.innerHTML='';
+      const n = playerCount;
+
+      const wrap = document.querySelector('#ladder-section .ladder-wrap');
+      const wrapW = Math.max( (wrap?.clientWidth || 600), 320 );
+
+      const isNarrow = wrapW < 560;
+      const leftPad   = isNarrow ? 40 : 60;
+      const rightPad  = leftPad;
+      const topPad    = isNarrow ? 32 : 40;
+      const bottomPad = isNarrow ? 56 : 60;
+
+      const innerW = wrapW - leftPad - rightPad;
+      const colGap = n > 1 ? Math.max(68, innerW / (n - 1)) : 0;
+
+      const width  = leftPad + rightPad + colGap * (n - 1);
+      const height = isNarrow ? 320 : 420;
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.innerHTML = '';
+
+      // local svg helpers
+      const svgLine = (x1,y1,x2,y2,{stroke='#999',width=1}={})=>{
+        const el=document.createElementNS('http://www.w3.org/2000/svg','line');
+        el.setAttribute('x1',x1); el.setAttribute('y1',y1);
+        el.setAttribute('x2',x2); el.setAttribute('y2',y2);
+        el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',width);
+        return el;
+      };
+      const svgText = (x,y,text,{size=12,fill='#e5e7eb',weight=400}={})=>{
+        const el=document.createElementNS('http://www.w3.org/2000/svg','text');
+        el.setAttribute('x',x); el.setAttribute('y',y);
+        el.setAttribute('text-anchor','middle'); el.setAttribute('fill',fill);
+        el.style.fontSize=`${size}px`; el.style.fontWeight=String(weight);
+        el.textContent=text; return el;
+      };
+      const svgCircle = (cx,cy,r,{fill='#000',stroke='#333'}={})=>{
+        const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        el.setAttribute('cx',cx); el.setAttribute('cy',cy); el.setAttribute('r',r);
+        el.setAttribute('fill',fill); el.setAttribute('stroke',stroke);
+        return el;
+      };
+
+      const TOP_Y    = isNarrow ? 64 : 80;
+      const BOTTOM_Y = height - (isNarrow ? 70 : 80);
+      const usableH  = BOTTOM_Y - TOP_Y;
+
+      const xs = Array.from({length:n}, (_,i)=> leftPad + colGap*i);
 
       // title
-      svg.appendChild(svgText(VIEW_W/2, 36, '사다리 타기', {size:20, weight:700, fill:'#e5e7eb'}));
+      svg.appendChild(svgText(width/2, isNarrow ? 28 : 36, '사다리 타기', {
+        size: isNarrow ? 16 : 20, weight:700, fill:'#e5e7eb'
+      }));
 
-      // top names + indices
+      // 수직선 + 상단 레이블
       xs.forEach((x,i)=>{
         const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-        g.appendChild(svgCircle(x, TOP_Y-24, 14, {fill:'#1e293b', stroke:'#334155'}));
-        g.appendChild(svgText(x, TOP_Y-20, String(i+1), {size:12, fill:'#e5e7eb'}));
-        g.appendChild(svgText(x, TOP_Y-38, nameList[i], {size:12, fill:'#cbd5e1'}));
+        g.appendChild(svgCircle(x, TOP_Y-24, isNarrow ? 12 : 14, {fill:'#1e293b', stroke:'#334155'}));
+        g.appendChild(svgText(x, TOP_Y-20, String(i+1), {size:isNarrow?10:12, fill:'#e5e7eb'}));
+        g.appendChild(svgText(x, TOP_Y-38, nameList[i], {size:isNarrow?10:12, fill:'#cbd5e1'}));
         svg.appendChild(g);
+        svg.appendChild(svgLine(x, TOP_Y, x, BOTTOM_Y, {stroke:'#334155', width:isNarrow?2.5:3}));
       });
 
-      // vertical lines
-      xs.forEach(x=> svg.appendChild(svgLine(x, TOP_Y, x, BOTTOM_Y, {stroke:'#334155', width:3})));
-
-      // rungs
+      // 가로 발판
       if(ladder){
+        const ys = Array.from({length:ladder.rows}, (_,r)=> TOP_Y + (usableH*(r+1))/(ladder.rows+1));
         for(let r=0;r<ladder.rows;r++){
           for(let c=0;c<ladder.cols-1;c++){
             if(!ladder.rungs[r][c]) continue;
-            svg.appendChild(svgLine(xs[c], ys[r], xs[c+1], ys[r], {stroke:'#475569', width:4}));
+            svg.appendChild(svgLine(xs[c], ys[r], xs[c+1], ys[r], {stroke:'#475569', width:isNarrow?3:4}));
           }
         }
       }
 
-      // highlight path
+      // 하이라이트 경로(있으면 마지막 선택자 기준 재계산)
+      if(lastSelectedIdx!==null && ladder){
+        const {points} = tracePathPoints(lastSelectedIdx, {xs, TOP_Y, BOTTOM_Y, ladder});
+        highlightPoints = points;
+      }
       if(highlightPoints && highlightPoints.length){
         const poly=document.createElementNS('http://www.w3.org/2000/svg','polyline');
         poly.setAttribute('points', highlightPoints.map(p=>p.join(',')).join(' '));
-        poly.setAttribute('fill','none'); poly.setAttribute('stroke','#22d3ee'); poly.setAttribute('stroke-width','8');
+        poly.setAttribute('fill','none'); poly.setAttribute('stroke','#22d3ee');
+        poly.setAttribute('stroke-width', isNarrow?6:8);
         poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('stroke-linecap','round');
         poly.style.filter='drop-shadow(0 0 6px rgba(34,211,238,.6))';
         svg.appendChild(poly);
       }
 
-      // bottom results
+      // 바닥 결과
       const revealedCols = new Set(Object.values(revealedByTopIndex).map(v=>v.endCol));
       xs.forEach((x,i)=>{
         const g = document.createElementNS('http://www.w3.org/2000/svg','g');
         const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-        rect.setAttribute('x', x-36); rect.setAttribute('y', BOTTOM_Y+16);
-        rect.setAttribute('width', 72); rect.setAttribute('height', 28); rect.setAttribute('rx', 10);
+        rect.setAttribute('x', x-34); rect.setAttribute('y', BOTTOM_Y+12);
+        rect.setAttribute('width', 68); rect.setAttribute('height', 26); rect.setAttribute('rx', 9);
         rect.setAttribute('fill', '#0f172a'); rect.setAttribute('stroke', '#334155');
-        const t = svgText(x, BOTTOM_Y+35, revealedCols.has(i) ? bottomResults[i] : '?', {
-          size:14,
+        const t = svgText(x, BOTTOM_Y+30, revealedCols.has(i) ? bottomResults[i] : '?', {
+          size: isNarrow?12:14,
           fill: revealedCols.has(i) ? (bottomResults[i]==='통과'?'#34d399':'#f87171') : '#94a3b8',
           weight:700
         });
         g.appendChild(rect); g.appendChild(t); svg.appendChild(g);
       });
+
+      // 내부 헬퍼: 경로 계산 (현재 좌표계 인자 받아 사용)
+      function tracePathPoints(startCol, ctx){
+        const xs_ = ctx?.xs || xs;
+        const TOP = ctx?.TOP_Y || TOP_Y;
+        const BTM = ctx?.BOTTOM_Y || BOTTOM_Y;
+        if(!ladder) return {points:[], endCol:startCol};
+        let col=startCol; const pts=[];
+        pts.push([xs_[col], TOP]);
+        for(let r=0;r<ladder.rows;r++){
+          const y = TOP + (usableH*(r+1))/(ladder.rows+1);
+          pts.push([xs_[col], y]);
+          if(ladder.rungs[r][col]){ pts.push([xs_[col+1], y]); col=col+1; }
+          else if(col>0 && ladder.rungs[r][col-1]){ pts.push([xs_[col-1], y]); col=col-1; }
+        }
+        pts.push([xs_[col], BTM]);
+        return {points:pts, endCol:col};
+      }
+
+      // 외부에서 재사용할 수 있게 바인딩
+      draw._trace = (i)=> tracePathPoints(i);
     }
 
-    // svg helpers
-    function svgLine(x1,y1,x2,y2,{stroke='#999',width=1}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','line'); el.setAttribute('x1',x1); el.setAttribute('y1',y1); el.setAttribute('x2',x2); el.setAttribute('y2',y2); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',width); return el; }
-    function svgText(x,y,text,{size=12,fill='#e5e7eb',weight=400}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','text'); el.setAttribute('x',x); el.setAttribute('y',y); el.setAttribute('text-anchor','middle'); el.setAttribute('fill',fill); el.style.fontSize=`${size}px`; el.style.fontWeight=String(weight); el.textContent=text; return el; }
-    function svgCircle(cx,cy,r,{fill='#000',stroke='#333'}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','circle'); el.setAttribute('cx',cx); el.setAttribute('cy',cy); el.setAttribute('r',r); el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); return el; }
-
-    // interactions
     function onStart(){
       setToast('');
       if(!countsValid()){ setToast('인원수와 통과/꽝 개수의 합이 인원수와 같아야 합니다.'); return; }
@@ -491,18 +555,17 @@
 
       ladder = generateLadder(playerCount, DEFAULT_ROWS);
       bottomResults = shuffle([ ...Array(passCount).fill('통과'), ...Array(playerCount - passCount).fill('꽝') ]);
-      revealedByTopIndex = {}; highlightPoints=null; started=true;
+      revealedByTopIndex = {}; highlightPoints=null; lastSelectedIdx=null; started=true;
 
       $players().disabled = true; $pass().disabled = true; $fail().disabled = true;
       $names().querySelectorAll('input').forEach(i=> i.disabled = true);
-
       draw();
     }
 
     function onReset(){
       playerCount = 4; passCount=2; failCount=2;
       nameList = Array.from({length:playerCount}, (_,i)=>`참가자${i+1}`);
-      ladder=null; bottomResults=[]; revealedByTopIndex={}; highlightPoints=null; started=false; setToast('');
+      ladder=null; bottomResults=[]; revealedByTopIndex={}; highlightPoints=null; lastSelectedIdx=null; started=false; setToast('');
       $players().disabled=false; $pass().disabled=false; $fail().disabled=false;
       $players().value='4'; $pass().value='2'; $fail().value='2'; renderNameInputs(); draw();
       $reveals().innerHTML='';
@@ -510,7 +573,8 @@
 
     function onClickName(idx){
       if(!started || !ladder){ setToast("먼저 '사다리 시작'을 눌러 게임을 시작하세요."); return; }
-      const {points, endCol} = tracePathPoints(idx);
+      lastSelectedIdx = idx;
+      const {points, endCol} = draw._trace ? draw._trace(idx) : {points:[], endCol:idx};
       const result = bottomResults[endCol];
       highlightPoints = points;
       revealedByTopIndex[idx] = { endCol, result };
@@ -528,7 +592,7 @@
         const left=document.createElement('div'); left.textContent=text;
         left.style.color = result==='통과' ? '#34d399' : '#fca5a5';
         const btn=document.createElement('button'); btn.className='btn primary'; btn.style.padding='6px 8px'; btn.style.fontSize='12px'; btn.textContent='경로 보기';
-        btn.addEventListener('click', ()=>{ const {points}=tracePathPoints(Number(topIdx)); highlightPoints=points; draw(); });
+        btn.addEventListener('click', ()=>{ lastSelectedIdx=topIdx; const {points}=draw._trace(topIdx); highlightPoints=points; draw(); });
         row.appendChild(left); row.appendChild(btn); $reveals().appendChild(row);
       }else{
         row.firstChild.textContent = text;
@@ -561,6 +625,9 @@
 
       $start().addEventListener('click', onStart);
       $reset().addEventListener('click', onReset);
+
+      // 화면 리사이즈 시 다시 그리기(경로도 재계산)
+      window.addEventListener('resize', ()=> draw());
     }
 
     function setup(){

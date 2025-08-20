@@ -706,7 +706,62 @@ function bootApp(){
   }
 }
 </script>
-  
+
+<!-- ==== 전역 bootApp: SDK 동적 로드 + 지도 최소 초기화 ==== -->
+<script id="boot-app">
+window.bootApp = function bootApp(){
+  var SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=6096c5ef0866cfa555f1040e3f21bc62&libraries=services&autoload=false";
+
+  // 이미 로드되어 있으면 재사용
+  if (window.kakao && kakao.maps && kakao.maps.load) {
+    kakao.maps.load(init);
+    return;
+  }
+
+  // SDK 동적 로드
+  var s = document.createElement('script');
+  s.src = SDK_URL; s.async = true; s.defer = true;
+  s.onload = function(){
+    if (!window.kakao || !kakao.maps) {
+      console.error('[Kakao] SDK 로드 실패');
+      return;
+    }
+    kakao.maps.load(init);
+  };
+  s.onerror = function(){
+    console.error('[Kakao] SDK 스크립트 로드 오류');
+  };
+  document.head.appendChild(s);
+
+  // SDK 준비 후 실행 (지도로 최소 확인)
+  function init(){
+    try {
+      var mapEl = document.getElementById('map');
+      if (!mapEl) { console.error('[Map] #map 요소 없음'); return; }
+
+      // level: 4 ≈ 약 50m
+      var map = new kakao.maps.Map(mapEl, {
+        center: new kakao.maps.LatLng(37.555, 127.15),
+        level: 4
+      });
+
+      var geocoder = new kakao.maps.services.Geocoder();
+      geocoder.addressSearch('서울 강동구 고덕비즈밸리로 26 강동U1센터', function(res, status){
+        if (status === kakao.maps.services.Status.OK && res[0]){
+          var center = new kakao.maps.LatLng(res[0].y, res[0].x);
+          map.setCenter(center);
+          new kakao.maps.Marker({ map: map, position: center, title: '강동U1센터' });
+        } else {
+          console.warn('[Geocode] 주소검색 실패, 기본 좌표 유지');
+        }
+      });
+    } catch(e){
+      console.error('[Map] 초기화 오류:', e);
+    }
+  }
+};
+</script>
+            
 <script>
 /* ===== LOCK SAFE MODE =====
    - 이벤트 리스너 없이 onclick/onkeydown으로 직접 호출

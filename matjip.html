@@ -20,6 +20,7 @@
     .btn{display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#0b1220;color:var(--text)}
     .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
     .btn.light{background:#ffffff;color:#111827;border-color:#e5e7eb}
+    .btn.call{background:#34d399;color:#062015;border-color:#0e7e5a;font-weight:800}
     .grid{display:grid;gap:18px}
     @media(min-width:1024px){ .grid.cols-2{grid-template-columns:1fr 480px} }
     .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid var(--border);border-radius:18px;padding:18px}
@@ -27,8 +28,10 @@
     .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.85}
     .muted{color:#9aa3b2}
     .footer{border-top:1px solid #111827;margin-top:28px;padding-top:16px;color:#9aa3b2}
+    #map{height:600px;border-radius:14px;overflow:hidden}
+    @media(max-width:1023px){ #map{height:380px} }
 
-    /* 우측 패널 */
+    /* 리스트 */
     .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
     .chip{
       padding:8px 12px;border-radius:999px;border:1px solid #e5e7eb;
@@ -42,8 +45,7 @@
     #place-list .title{font-weight:700}
     #place-list .cat{font-size:12px;color:#9aa3b2}
     #detail{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
-    #map{height:600px;border-radius:14px;overflow:hidden}
-    @media(max-width:1023px){ #map{height:380px} }
+    .detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
     /* 오늘 뭐먹지 */
     .pick-box{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -60,7 +62,7 @@
     #ladder-section .names-grid{display:grid;gap:8px}
     #ladder-section .name-row{display:flex;gap:8px;align-items:center}
     #ladder-section .name-row input{flex:1}
-    #ladder-section .btn{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text);font-weight:700;cursor:pointer}
+    #ladder-section .btn{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:#fff;font-weight:700;cursor:pointer}
     #ladder-section .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent}
     #ladder-section .btn.good{background:#10b981;color:#062015;border-color:#0e7e5a}
     #ladder-section .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -71,28 +73,21 @@
     #ladder-section .ladder-wrap{overflow:auto}
     #ladder-section svg{width:100%;min-width:560px;background:#08101b;border-radius:12px;border:1px solid #1f2937}
 
-    /* === 사다리 모바일 최적화 === */
+    /* 사다리 모바일 최적화 */
     @media (max-width: 768px){
       #ladder-section .names-grid{
         grid-template-columns: repeat(2, minmax(110px, 1fr)) !important;
         gap: 10px;
       }
-      #ladder-section .name-row{
-        flex-direction: column;
-        align-items: stretch;
-        gap: 6px;
-      }
-      #ladder-section .name-row input{ width: 100%; }
-      #ladder-section .btn.good{ width: 100%; }
-      #ladder-section svg{
-        min-width: 0;     /* 고정 최소폭 해제 */
-        height: 320px;    /* 한 화면에 수납 */
-      }
-      #ladder-section .ladder-wrap{ margin-top: 6px; }
+      #ladder-section .name-row{flex-direction: column;align-items: stretch;gap: 6px}
+      #ladder-section .name-row input{ width: 100% }
+      #ladder-section .btn.good{ width: 100% }
+      #ladder-section svg{ min-width: 0; height: 320px }
+      #ladder-section .ladder-wrap{ margin-top: 6px }
     }
     @media (max-width: 420px){
-      #ladder-section .names-grid{ grid-template-columns: 1fr !important; }
-      #ladder-section svg{ height: 300px; }
+      #ladder-section .names-grid{ grid-template-columns: 1fr !important }
+      #ladder-section svg{ height: 300px }
     }
   </style>
 </head>
@@ -205,6 +200,10 @@
     return '기타';
   };
   const clamp = (v,min,max)=> Math.max(min, Math.min(max, v));
+  const telHref = (tel='') => {
+    const cleaned = (tel || '').replace(/[^\d+]/g,''); // 숫자/국가코드만
+    return cleaned ? `tel:${cleaned}` : null;
+  };
 
   // ===== 상태(지도/목록) =====
   let map, places, ALL_RESULTS=[], MARKERS=[], CURRENT_FILTER='전체', MENU_MAP=null;
@@ -310,19 +309,13 @@
   function showDetail(item){
     const box = document.getElementById('detail');
     const cuisine = mapCuisine(item.category_name);
-    const tel = item.phone || '전화정보 없음';
+    const tel = item.phone || '';
     const addr = item.road_address_name || item.address_name || '';
 
     const naverLink = `https://map.naver.com/v5/search/${encodeURIComponent(item.place_name)}`;
     const googleLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.place_name + ' ' + addr)}`;
 
-    let menuHTML = `<div class="muted">* 메뉴는 외부 페이지를 참고하세요.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
-        <a class="btn" href="${item.place_url}" target="_blank" rel="noopener">카카오에서 보기</a>
-        <a class="btn" href="${naverLink}" target="_blank" rel="noopener">네이버에서 보기</a>
-        <a class="btn" href="${googleLink}" target="_blank" rel="noopener">구글에서 보기</a>
-      </div>`;
-
+    let menuHTML = `<div class="muted">* 메뉴는 외부 페이지를 참고하세요.</div>`;
     if (MENU_MAP) {
       const key = item.id || (item.place_name + (item.phone||'')).toLowerCase();
       const custom = MENU_MAP[key];
@@ -333,12 +326,22 @@
       }
     }
 
+    const telLink = telHref(tel);
+    const telLine = tel
+      ? `전화: <a href="${telLink}" class="btn call" style="padding:6px 10px;border-radius:10px;text-decoration:none">☎ ${tel}</a>`
+      : `전화: <span class="muted">전화정보 없음</span>`;
+
     box.innerHTML = `
       <div class="section-title"><div class="bar"></div><h3 style="margin:0">${item.place_name}</h3></div>
       <p class="muted" style="margin:4px 0 10px">${item.category_name} · 분류: ${cuisine}</p>
       <p style="margin:0 0 6px">주소: ${addr}</p>
-      <p style="margin:0 0 10px">전화: ${tel}</p>
+      <p style="margin:0 0 10px">${telLine}</p>
       <div><strong>메뉴</strong>${menuHTML}</div>
+      <div class="detail-actions">
+        <a class="btn" href="${item.place_url}" target="_blank" rel="noopener">카카오에서 보기</a>
+        <a class="btn" href="${naverLink}" target="_blank" rel="noopener">네이버에서 보기</a>
+        <a class="btn" href="${googleLink}" target="_blank" rel="noopener">구글에서 보기</a>
+      </div>
     `;
   }
 
@@ -363,7 +366,6 @@
   // ===== 사다리 v2 (반응형) =====
   const LadderV2 = (() => {
     const MIN=3, MAX=8, DEFAULT_ROWS=12, RUNG_DENSITY=0.35;
-    // DOM
     const $players = () => document.getElementById('ladder2-players');
     const $pass    = () => document.getElementById('ladder2-pass');
     const $fail    = () => document.getElementById('ladder2-fail');
@@ -374,19 +376,17 @@
     const $toast   = () => document.getElementById('ladder2-toast');
     const $reveals = () => document.getElementById('ladder2-reveals');
 
-    // State
     let playerCount = 4;
     let nameList = Array.from({length:4}, (_,i)=>`참가자${i+1}`);
     let passCount = 2;
     let failCount = 2;
     let started=false;
-    let ladder=null;              // {rows, cols, rungs:boolean[rows][cols-1]}
-    let bottomResults=[];         // ['통과'|'꽝']
-    let revealedByTopIndex={};    // { [topIdx]: {endCol,result} }
-    let lastSelectedIdx=null;     // 마지막 클릭한 참가자(리사이즈 시 경로 재계산용)
+    let ladder=null;
+    let bottomResults=[];
+    let revealedByTopIndex={};
+    let lastSelectedIdx=null;
     let highlightPoints=null;
 
-    // helpers
     const shuffle = (a)=>{ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; };
     const setToast = (msg)=> { $toast().textContent = msg||''; };
     const countsValid = ()=> (playerCount>=MIN && playerCount<=MAX && passCount>=0 && failCount>=0 && passCount+failCount===playerCount);
@@ -419,7 +419,6 @@
       return { rows, cols, rungs };
     }
 
-    // 반응형 드로잉
     function draw(){
       const svg = $svg();
       const n = playerCount;
@@ -441,7 +440,7 @@
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       svg.innerHTML = '';
 
-      // local svg helpers
+      // helpers
       const svgLine = (x1,y1,x2,y2,{stroke='#999',width=1}={})=>{
         const el=document.createElementNS('http://www.w3.org/2000/svg','line');
         el.setAttribute('x1',x1); el.setAttribute('y1',y1);
@@ -495,9 +494,9 @@
         }
       }
 
-      // 하이라이트 경로(있으면 마지막 선택자 기준 재계산)
+      // 선택 경로 유지(리사이즈 시 재계산)
       if(lastSelectedIdx!==null && ladder){
-        const {points} = tracePathPoints(lastSelectedIdx, {xs, TOP_Y, BOTTOM_Y, ladder});
+        const {points} = tracePathPoints(lastSelectedIdx, {xs, TOP_Y, BOTTOM_Y, ladder, usableH});
         highlightPoints = points;
       }
       if(highlightPoints && highlightPoints.length){
@@ -526,16 +525,18 @@
         g.appendChild(rect); g.appendChild(t); svg.appendChild(g);
       });
 
-      // 내부 헬퍼: 경로 계산 (현재 좌표계 인자 받아 사용)
+      // trace helper (현 좌표계 기준)
       function tracePathPoints(startCol, ctx){
         const xs_ = ctx?.xs || xs;
         const TOP = ctx?.TOP_Y || TOP_Y;
         const BTM = ctx?.BOTTOM_Y || BOTTOM_Y;
+        const rows = ladder?.rows || 0;
+        const h = (ctx?.usableH ?? (BTM - TOP));
         if(!ladder) return {points:[], endCol:startCol};
         let col=startCol; const pts=[];
         pts.push([xs_[col], TOP]);
-        for(let r=0;r<ladder.rows;r++){
-          const y = TOP + (usableH*(r+1))/(ladder.rows+1);
+        for(let r=0;r<rows;r++){
+          const y = TOP + (h*(r+1))/(rows+1);
           pts.push([xs_[col], y]);
           if(ladder.rungs[r][col]){ pts.push([xs_[col+1], y]); col=col+1; }
           else if(col>0 && ladder.rungs[r][col-1]){ pts.push([xs_[col-1], y]); col=col-1; }
@@ -543,8 +544,6 @@
         pts.push([xs_[col], BTM]);
         return {points:pts, endCol:col};
       }
-
-      // 외부에서 재사용할 수 있게 바인딩
       draw._trace = (i)=> tracePathPoints(i);
     }
 
@@ -574,7 +573,7 @@
     function onClickName(idx){
       if(!started || !ladder){ setToast("먼저 '사다리 시작'을 눌러 게임을 시작하세요."); return; }
       lastSelectedIdx = idx;
-      const {points, endCol} = draw._trace ? draw._trace(idx) : {points:[], endCol:idx};
+      const {points, endCol} = (draw._trace ? draw._trace(idx) : {points:[], endCol:idx});
       const result = bottomResults[endCol];
       highlightPoints = points;
       revealedByTopIndex[idx] = { endCol, result };
@@ -626,23 +625,21 @@
       $start().addEventListener('click', onStart);
       $reset().addEventListener('click', onReset);
 
-      // 화면 리사이즈 시 다시 그리기(경로도 재계산)
+      // 화면 리사이즈 시 다시 그리기
       window.addEventListener('resize', ()=> draw());
     }
 
     function setup(){
-      // 초기값 동기화
       playerCount = clamp(parseInt($players().value||4,10),MIN,MAX);
       nameList = Array.from({length:playerCount}, (_,i)=>`참가자${i+1}`);
       passCount = clamp(parseInt($pass().value||2,10),0,playerCount);
       failCount = clamp(parseInt($fail().value||2,10),0,playerCount);
-      bindEvents();
-      renderNameInputs(); draw();
+      bindEvents(); renderNameInputs(); draw();
     }
-
     return { setup };
   })();
 
+  // ===== 오늘 날짜 표시 끝 =====
 })();
 </script>
 </body>

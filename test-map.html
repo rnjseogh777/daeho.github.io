@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kakao Map Test</title>
+<style>
+  html,body{margin:0}
+  #map{height:70vh}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=여기에_JavaScript_키&autoload=false"></script>
+<script>
+  kakao.maps.load(function(){
+    const map = new kakao.maps.Map(document.getElementById('map'), {
+      center: new kakao.maps.LatLng(37.523, 126.926),
+      level: 4
+    });
+    new kakao.maps.Marker({
+      map, position: new kakao.maps.LatLng(37.523, 126.926), title: '여의도'
+    });
+  });
+</script>
+</body>
+</html>

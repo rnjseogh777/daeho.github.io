@@ -222,46 +222,6 @@
 </main>
 </div> <!-- /#app -->
 
-<script>
-/* =========================
-   1) 잠금(비번 1004) 로직
-   ========================= */
-(function lockInit(){
-  const PASS = '1004';
-  const $overlay = document.getElementById('lock-overlay');
-  const $app = document.getElementById('app');
-  const $input = document.getElementById('lock-pass');
-  const $submit = document.getElementById('lock-submit');
-  const $clear = document.getElementById('lock-clear');
-  const $error = document.getElementById('lock-error');
-
-  function showError(msg){ $error.textContent = msg || ''; }
-  function unlock(){
-    $overlay.style.display = 'none';
-    $app.style.display = 'block';
-    bootApp(); // 앱 부팅 (SDK 로드 포함)
-  }
-
-  function tryEnter(){
-    const v = ($input.value || '').trim();
-    if(v === PASS){
-      showError('');
-      unlock();
-    }else{
-      showError('비밀번호가 올바르지 않습니다.');
-      $input.select();
-      $input.focus();
-    }
-  }
-
-  $submit.addEventListener('click', tryEnter);
-  $clear.addEventListener('click', ()=> { $input.value=''; showError(''); $input.focus(); });
-  $input.addEventListener('keydown', (e)=> { if(e.key==='Enter') tryEnter(); });
-
-  // 포커스
-  setTimeout(()=> $input.focus(), 0);
-})();
-
 /* =========================
    2) 앱 부팅(카카오 SDK 동적 로드)
    ========================= */

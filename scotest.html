@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SC&O 재미 MBTI 찾기 — EY 스타일</title>
+  <meta name="description" content="EY SC&O 팀 전용 16유형 재미 테스트: 장표/엑셀/리서치/PM/고객/야근/야식/커피 밈까지 반영한 리얼 컨설팅 버전" />
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: #111827ee;
+      --panel-2: #0f172acc;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --border: #1f2937;
+      --danger: #f87171;
+      --ok: #4ade80;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; padding:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 80% -10%, #1f2937 0%, #0b1225 50%, #020617 100%);
+    }
+    a{color:var(--accent)}
+    .wrap{max-width:880px; margin:0 auto; padding:24px}
+    header{display:flex; align-items:center; gap:12px; margin-bottom:16px}
+    header .badge{font-size:12px; color:var(--muted); border:1px solid var(--border); padding:4px 8px; border-radius:999px}
+    .card{
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.25)
+    }
+    h1{font-size:28px; margin:8px 0 0}
+    h2{font-size:22px; margin:0 0 8px}
+    p{color:var(--muted); line-height:1.6}
+    .grid{display:grid; gap:16px}
+    .grid.q{grid-template-columns:1fr}
+    @media(min-width:720px){ .grid.q{grid-template-columns:1fr 1fr} }
+
+    .btn{appearance:none; border:1px solid var(--border); background:#0b1220; color:var(--text); padding:12px 14px; border-radius:12px; cursor:pointer; font-size:15px; line-height:1.3; text-align:left; transition:transform .06s ease, background .2s ease, border .2s ease}
+    .btn:hover{transform:translateY(-1px); border-color:#334155}
+    .btn:focus{outline:2px solid var(--accent); outline-offset:2px}
+
+    .primary{background:linear-gradient(180deg,#1e293b 0%,#0b1220 100%)}
+
+    .controls{display:flex; gap:8px; justify-content:space-between; align-items:center; margin-top:16px}
+    .controls .left{display:flex; gap:8px}
+
+    .btn-pill{border-radius:999px; padding:10px 14px; font-weight:600}
+
+    .progress{height:10px; background:#0b1322; border:1px solid var(--border); border-radius:999px; overflow:hidden; margin:14px 0}
+    .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--accent) 0%, #a78bfa 100%)}
+
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:#0a1322; color:#cbd5e1; border:1px solid var(--border); border-radius:999px; font-size:12px}
+
+    .result{display:flex; flex-direction:column; gap:8px; align-items:flex-start}
+    .result h2{display:flex; align-items:center; gap:8px; font-size:24px; margin:0}
+    .desc{color:#cbd5e1}
+
+    .bars{display:grid; gap:10px; margin-top:12px}
+    .bar{display:flex; align-items:center; gap:8px}
+    .bar .name{min-width:200px; color:#cbd5e1; font-size:14px}
+    .bar .meter{flex:1; height:10px; background:#0a1322; border:1px solid var(--border); border-radius:8px; overflow:hidden}
+    .bar .meter > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--accent-2) 0%, var(--accent) 100%)}
+
+    footer{margin:48px 0 16px; color:var(--muted); font-size:12px; text-align:center}
+
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="badge">EY SC&O · 팀 밈 테스트</span>
+      <span class="badge">16 유형 · 13 문항</span>
+    </header>
+
+    <div id="app" class="card">
+      <div id="start">
+        <h1>SC&O 재미 MBTI 찾기</h1>
+        <p>장표·엑셀·리서치·PM·고객·야근·야식·커피… 리얼 컨설팅 밈으로 보는 우리 팀의 16유형 테스트 🔍</p>
+        <div class="progress" aria-hidden="true"><i style="width:0%"></i></div>
+        <div class="controls">
+          <div class="left">
+            <button id="btnStart" class="btn btn-pill primary" aria-label="테스트 시작하기">시작하기</button>
+          </div>
+          <div class="right pill">무기: 장표·엑셀·리서치 · 규칙: 단일 결과</div>
+        </div>
+      </div>
+
+      <div id="quiz" hidden>
+        <div class="pill" id="qMeta">Q<span id="qNum">1</span> / <span id="qTotal">13</span></div>
+        <h2 id="qText">문항</h2>
+        <div class="progress" aria-label="진행도"><i id="qProg" style="width:0%"></i></div>
+        <div class="grid q" id="options"></div>
+        <div class="controls">
+          <div class="left">
+            <button id="btnPrev" class="btn btn-pill" aria-label="이전으로">← 이전</button>
+            <button id="btnReset" class="btn btn-pill" aria-label="초기화">↺ 처음부터</button>
+          </div>
+          <div class="right pill" id="helper">선택 후 다음 문항으로 자동 진행</div>
+        </div>
+      </div>
+
+      <div id="result" hidden>
+        <div class="pill">결과</div>
+        <div class="result">
+          <h2><span id="resEmoji">🎯</span> <span id="resName">유형명</span></h2>
+          <div id="resDesc" class="desc">설명</div>
+          <div class="pill" id="resRule">동점 규칙 적용: 핵심 문항(Q4·Q6·Q7) ▶︎ 타이브레이커(Q13)</div>
+          <div class="bars" id="resBars" aria-label="상위 유형 분포"></div>
+        </div>
+        <div class="controls">
+          <div class="left">
+            <button id="btnAgain" class="btn btn-pill primary">다시 하기</button>
+          </div>
+          <div class="right">
+            <button id="btnCopy" class="btn btn-pill" title="결과 텍스트 복사">결과 복사</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Made for EY SC&O · 깃허브 페이지로 배포하기 좋게 단일 파일로 제작됨 · 개인정보/추적 없음
+    </footer>
+  </div>
+
+<script>
+(function(){
+  // ====== 유형 정의 ======
+  const TYPES = [
+    {id:1, key:'excel', emoji:'📊', name:'엑셀 괴도형', desc:'수식과 피벗으로 밤을 지새우는 데이터 장인'},
+    {id:2, key:'slide', emoji:'🗂️', name:'장표 장인형', desc:'장표 디자인에 영혼을 갈아 넣는 장표 공예가'},
+    {id:3, key:'deadline', emoji:'⏰', name:'데드라인 추격자형', desc:'마감 직전 1시간에 폭발하는 집중력의 소유자'},
+    {id:4, key:'snack', emoji:'🍗', name:'야식 조달자형', desc:'팀의 야근 생존을 책임지는 간식 서포터'},
+    {id:5, key:'meme', emoji:'🐥', name:'밈 제조기형', desc:'단톡방에 짤과 드립을 쏟아내는 분위기 메이커'},
+    {id:6, key:'mental', emoji:'🧘', name:'멘탈 가드형', desc:'“다 잘 될 겁니다 🙏” 멘탈 방패'},
+    {id:7, key:'research', emoji:'🔍', name:'리서치 광부형', desc:'보고서/논문 끝까지 파고드는 자료 수집가'},
+    {id:8, key:'switch', emoji:'🎮', name:'업무/놀이 스위치형', desc:'일할 땐 빡세게, 놀 땐 신나게'},
+    {id:9, key:'pm', emoji:'👑', name:'PM 권력형', desc:'PM의 말이 곧 법인 프로젝트 지배자'},
+    {id:10, key:'honor', emoji:'🏆', name:'명예 EY형', desc:'“EY의 명예를 걸고…” 책임감 끝판왕'},
+    {id:11, key:'check', emoji:'🧾', name:'체크리스트 관리자형', desc:'To-do 리스트 없으면 불안한 꼼꼼이'},
+    {id:12, key:'radar', emoji:'📡', name:'고객 레이더형', desc:'고객 표정·말투에서 기류를 읽어내는 눈치왕'},
+    {id:13, key:'process', emoji:'🔧', name:'프로세스 최적화형', desc:'언제나 효율화와 표준화를 외치는 개선가'},
+    {id:14, key:'refhunter', emoji:'🕵️', name:'내부 레퍼런스 헌터형', desc:'SharePoint와 옛 보고서 더미를 끝내 찾아내는 탐험가'},
+    {id:15, key:'coffee', emoji:'☕', name:'커피 인퓨저형', desc:'카페인이 끊기면 업무 효율 0%'},
+    {id:16, key:'story', emoji:'🎤', name:'스토리텔러형', desc:'장표보다 말빨로 고객을 설득하는 언변가'},
+  ];
+
+  // 우선순위 테이블 (최후 동점 백업)
+  const PRIORITY = [9,2,1,7,10,11,12,13,15,4,6,5,14,16,8,3];
+  // 핵심 문항 (1-based → 계산 시 0-based 사용)
+  const CORE_Q = [4,6,7];
+  // 타이브레이커 문항
+  const TIE_Q = 13;
+
+  // ====== 질문 정의 (텍스트 & 보기 라벨 & 매핑) ======
+  const QUESTIONS = [
+    {
+      text:'프로젝트 킥오프 첫날, 나는?',
+      options:[
+        {label:'A. 데이터 소스부터 묻는다', type:1},
+        {label:'B. 장표 템플릿부터 확인한다', type:2},
+        {label:'C. 리서치 방향성을 고민한다', type:7},
+        {label:'D. “PM님 말씀대로 하겠습니다”', type:9},
+      ]
+    },
+    {
+      text:'야근이 확정됐다. 제일 먼저 하는 행동은?',
+      options:[
+        {label:'A. 커피 사러 나간다', type:15},
+        {label:'B. 배민앱 켠다', type:4},
+        {label:'C. 체크리스트 정리한다', type:11},
+        {label:'D. “다 잘 될 거야”라고 다독인다', type:6},
+      ]
+    },
+    {
+      text:'장표 작업에서 내가 제일 신경 쓰는 건?',
+      options:[
+        {label:'A. 글자 정렬/간격 완벽하게', type:2},
+        {label:'B. 고객이 듣고 싶은 흐름/스토리', type:16},
+        {label:'C. EY 내부 레퍼런스 꼭 넣기', type:14},
+        {label:'D. “EY 명예에 부끄럽지 않게”', type:10},
+      ]
+    },
+    { // Q4 (핵심)
+      text:'고객과의 미팅 중 나는?',
+      options:[
+        {label:'A. 고객 표정만 봐도 분위기 읽음', type:12},
+        {label:'B. 고객이 뭘 요구할지 미리 리스트화', type:11},
+        {label:'C. 마감 일정 생각하며 속으로 한숨', type:3},
+        {label:'D. 고객이 원하는 건 결국 데이터', type:1},
+      ]
+    },
+    {
+      text:'리서치를 할 때 나는?',
+      options:[
+        {label:'A. 구글/논문 끝까지 파고든다', type:7},
+        {label:'B. EY 내부 자료창고를 뒤진다', type:14},
+        {label:'C. 팀 단톡방에 밈 던지고 있다가 시작', type:5},
+        {label:'D. “이 프로세스 자체가 비효율적이야”', type:13},
+      ]
+    },
+    { // Q6 (핵심)
+      text:'데드라인 직전 1시간, 나는?',
+      options:[
+        {label:'A. 수식/데이터 다시 돌려본다', type:1},
+        {label:'B. 장표 레이아웃 고치느라 식은땀', type:2},
+        {label:'C. 리스트를 체크하며 빠진 걸 점검', type:11},
+        {label:'D. 커피 두 잔 원샷', type:15},
+      ]
+    },
+    { // Q7 (핵심)
+      text:'PM이 “방향 바꾸자”고 하면?',
+      options:[
+        {label:'A. 엑셀 시트 새로 연다', type:1},
+        {label:'B. 장표 레이아웃 갈아엎는다', type:2},
+        {label:'C. 리서치 다 새로 한다고 울상', type:7},
+        {label:'D. “PM 뜻이 곧 진리”', type:9},
+      ]
+    },
+    {
+      text:'주말 나는?',
+      options:[
+        {label:'A. 넷플/게임으로 충전', type:8},
+        {label:'B. 논문/보고서 PDF 읽음', type:7},
+        {label:'C. 팀 단톡방에 밈 투척', type:5},
+        {label:'D. 다음주 일정표/체크리스트 작성', type:11},
+      ]
+    },
+    {
+      text:'팀워크가 흔들릴 때 나는?',
+      options:[
+        {label:'A. “다 잘 될 거예요~”라고 다독임', type:6},
+        {label:'B. 야식 단톡방 개설', type:4},
+        {label:'C. 데이터 근거로 팀 설득', type:1},
+        {label:'D. 프로세스 개선안을 제안', type:13},
+      ]
+    },
+    {
+      text:'고객 미팅 끝나고 나는?',
+      options:[
+        {label:'A. “오늘 장표 반응 나쁘지 않았네”', type:2},
+        {label:'B. “자료 요청 또 왔다…”', type:7},
+        {label:'C. 고객 표정 복기하며 분위기 분석', type:12},
+        {label:'D. “이건 EY의 명예를 지켜냈다”', type:10},
+      ]
+    },
+    {
+      text:'일하다가 체력이 떨어질 때 나는?',
+      options:[
+        {label:'A. 아아 한 잔 추가', type:15},
+        {label:'B. 잠깐 유튜브/게임', type:8},
+        {label:'C. 밈 공유하며 웃음 찾기', type:5},
+        {label:'D. 다시 한 번 체크리스트 들여다보기', type:11},
+      ]
+    },
+    {
+      text:'고객 요구가 너무 많을 때 나는?',
+      options:[
+        {label:'A. “그건 마감 일정상 어렵습니다” 단호 모드', type:3},
+        {label:'B. 결국 다 해줌', type:10},
+        {label:'C. 고객 말 다 받아적음', type:12},
+        {label:'D. “표준화하면 줄어듭니다” 제안', type:13},
+      ]
+    },
+    { // Q13 (타이브레이커)
+      text:'팀 내에서 자주 듣는 말은?',
+      options:[
+        {label:'A. “너 없으면 우리 다 죽었어”', type:1},
+        {label:'B. “와 장표 진짜 깔끔하다”', type:2},
+        {label:'C. “밈 공유 좀 그만ㅋㅋ”', type:5},
+        {label:'D. “이건 네 꼼꼼함 덕분이야”', type:11},
+      ]
+    },
+  ];
+
+  // ====== 상태 ======
+  let idx = 0; // 0-based 현재 문항
+  const answers = Array(QUESTIONS.length).fill(null); // 각 문항 선택된 type id
+
+  // ====== 엘리먼트 ======
+  const $start = document.getElementById('start');
+  const $quiz = document.getElementById('quiz');
+  const $result = document.getElementById('result');
+
+  const $btnStart = document.getElementById('btnStart');
+  const $btnPrev = document.getElementById('btnPrev');
+  const $btnReset = document.getElementById('btnReset');
+  const $btnAgain = document.getElementById('btnAgain');
+  const $btnCopy = document.getElementById('btnCopy');
+
+  const $qNum = document.getElementById('qNum');
+  const $qTotal = document.getElementById('qTotal');
+  const $qText = document.getElementById('qText');
+  const $qProg = document.getElementById('qProg');
+  const $opt = document.getElementById('options');
+
+  const $resEmoji = document.getElementById('resEmoji');
+  const $resName = document.getElementById('resName');
+  const $resDesc = document.getElementById('resDesc');
+  const $resBars = document.getElementById('resBars');
+
+  // ====== 초기화 ======
+  $qTotal.textContent = String(QUESTIONS.length);
+
+  function showStart(){
+    $start.hidden = false; $quiz.hidden = true; $result.hidden = true;
+    progress(0);
+  }
+  function showQuiz(){
+    $start.hidden = true; $quiz.hidden = false; $result.hidden = true;
+    renderQ();
+  }
+  function showResult(){
+    $start.hidden = true; $quiz.hidden = true; $result.hidden = false;
+  }
+
+  function progress(n){
+    const p = Math.max(0, Math.min(100, n));
+    const bars = document.querySelectorAll('.progress > i');
+    bars.forEach(b => b.style.width = p + '%');
+  }
+
+  function renderQ(){
+    $qNum.textContent = String(idx+1);
+    $qText.textContent = QUESTIONS[idx].text;
+    progress(((idx)/QUESTIONS.length)*100);
+    $opt.innerHTML = '';
+    QUESTIONS[idx].options.forEach((op, i)=>{
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.textContent = op.label;
+      b.setAttribute('data-i', i);
+      b.setAttribute('aria-pressed', answers[idx] === op.type ? 'true':'false');
+      b.addEventListener('click', ()=>selectOption(op.type));
+      $opt.appendChild(b);
+    });
+    // 포커스 이동
+    setTimeout(()=>{
+      const first = $opt.querySelector('.btn');
+      if(first) first.focus();
+    }, 10);
+  }
+
+  function selectOption(type){
+    answers[idx] = type;
+    // 다음으로
+    if(idx < QUESTIONS.length-1){
+      idx++;
+      renderQ();
+    } else {
+      finalize();
+    }
+  }
+
+  function finalize(){
+    progress(100);
+    const tally = tallyScores(answers);
+    const winner = pickWinner(tally, answers);
+    const type = TYPES.find(t=>t.id===winner) || TYPES[0];
+
+    $resEmoji.textContent = type.emoji;
+    $resName.textContent = type.name;
+    $resDesc.textContent = type.desc;
+
+    // Top 5 막대 그래프
+    const top = Object.entries(tally).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    $resBars.innerHTML = '';
+    top.forEach(([tid,score])=>{
+      const t = TYPES.find(x=>x.id===Number(tid));
+      if(!t) return;
+      const div = document.createElement('div');
+      div.className='bar';
+      const name = document.createElement('div');
+      name.className='name'; name.textContent = `${t.emoji} ${t.name}`;
+      const meter = document.createElement('div'); meter.className='meter';
+      const i = document.createElement('i'); i.style.width = (score/Math.max(1,answers.length))*100 + '%';
+      meter.appendChild(i);
+      const val = document.createElement('div'); val.className='name'; val.style.minWidth='auto'; val.textContent = `${score}점`;
+      div.appendChild(name); div.appendChild(meter); div.appendChild(val);
+      $resBars.appendChild(div);
+    });
+
+    showResult();
+  }
+
+  function tallyScores(ans){
+    const map = {};
+    ans.forEach(t=>{ if(!t) return; map[t] = (map[t]||0)+1; });
+    return map;
+  }
+
+  // === 동점 해소: 핵심 문항 ▶ 타이브레이커 ▶ 우선순위 ===
+  function pickWinner(tally, ans){
+    // 1) 최다 득점 집합
+    const max = Math.max(...Object.values(tally));
+    let top = Object.keys(tally).filter(k=>tally[k]===max).map(Number);
+    if(top.length===1) return top[0];
+
+    // 2) 핵심 문항 우선 (Q4, Q6, Q7)
+    const coreCounts = {};
+    CORE_Q.forEach(qn=>{
+      const t = ans[qn-1]; // 0-based
+      if(!t) return;
+      if(!coreCounts[t]) coreCounts[t]=0;
+      coreCounts[t]++;
+    });
+    const coreMax = Math.max(0, ...top.map(t=>coreCounts[t]||0));
+    const topCore = top.filter(t => (coreCounts[t]||0) === coreMax);
+    if(topCore.length===1) return topCore[0];
+    top = topCore.length ? topCore : top; // 좁혀지지 않으면 기존 유지
+
+    // 3) 타이브레이커 문항 Q13의 선택을 최종 결정권으로
+    const tieType = ans[TIE_Q-1];
+    if(tieType && top.includes(tieType)) return tieType;
+
+    // 4) 마지막 안전장치: 우선순위 테이블
+    for(const tid of PRIORITY){ if(top.includes(tid)) return tid; }
+    // 혹시라도 점수맵에 없는 경우, 전체 우선순위 최상위
+    return PRIORITY[0];
+  }
+
+  // ====== 이벤트 ======
+  document.getElementById('btnStart').addEventListener('click', ()=>{ idx=0; answers.fill(null); showQuiz(); });
+  document.getElementById('btnPrev').addEventListener('click', ()=>{ if(idx>0){ idx--; renderQ(); } });
+  document.getElementById('btnReset').addEventListener('click', ()=>{ idx=0; answers.fill(null); showStart(); });
+  document.getElementById('btnAgain').addEventListener('click', ()=>{ idx=0; answers.fill(null); showQuiz(); });
+
+  document.getElementById('btnCopy').addEventListener('click', ()=>{
+    const tally = tallyScores(answers);
+    const winner = pickWinner(tally, answers);
+    const t = TYPES.find(x=>x.id===winner);
+    const txt = `SC&O 16유형 테스트 결과\n\n나의 유형: ${t.emoji} ${t.name}\n설명: ${t.desc}\n\n상위 분포: ` +
+      Object.entries(tally).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([tid,score])=>{
+        const tt=TYPES.find(x=>x.id===Number(tid)); return `${tt?.emoji||''}${tt?.name||''} ${score}점`;
+      }).join(', ');
+    navigator.clipboard.writeText(txt).then(()=>{
+      const $btn = document.getElementById('btnCopy');
+      $btn.textContent = '복사됨 ✅'; setTimeout(()=>{$btn.textContent='결과 복사';}, 1400);
+    });
+  });
+
+  // 키보드 접근성: ← 이전 / Enter 첫 선택
+  document.addEventListener('keydown', (e)=>{
+    if($quiz.hidden) return;
+    if(e.key==='ArrowLeft'){ document.getElementById('btnPrev').click(); }
+    if(e.key==='Enter'){
+      const first = $opt.querySelector('.btn');
+      if(first) first.click();
+    }
+  });
+
+  // 시작 화면 표시
+  showStart();
+})();
+</script>
+</body>
+</html>

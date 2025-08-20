@@ -10,39 +10,30 @@
 <div id="status">SDK 로딩 중…</div>
 <div id="map"></div>
 
-<!-- autoload=false (중요) -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=여기에_JavaScript_키&libraries=services&autoload=false"
-        onerror="document.getElementById('status').textContent='SDK 스크립트 로드 실패 (네트워크/도메인 차단)';">
+<!-- 꼭 https + autoload=false 로! -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=여기_JavaScript_키&libraries=services&autoload=false"
+        onerror="document.getElementById('status').textContent='❌ SDK 스크립트 로드 실패'">
 </script>
 <script>
-  // SDK가 완전히 로드된 뒤 initMap 실행
-  kakao.maps.load(initMap);
-
-  function setStatus(msg){ document.getElementById('status').textContent = msg; }
-
-  function initMap(){
+  // SDK가 완전히 로드된 뒤에만 initMap 실행
+  kakao.maps.load(function initMap(){
     try {
-      setStatus('지도 초기화 중…');
-      const el = document.getElementById('map');
-      if(!el){ setStatus('#map 요소를 찾지 못했습니다.'); return; }
-
-      const map = new kakao.maps.Map(el, {
-        center: new kakao.maps.LatLng(37.523, 126.926), // 여의도
-        level: 4
+      const map = new kakao.maps.Map(document.getElementById('map'), {
+        center: new kakao.maps.LatLng(37.523,126.926), level: 4
       });
       new kakao.maps.Marker({ map, position: new kakao.maps.LatLng(37.523,126.926), title:'여의도' });
-
-      setStatus('✅ 지도 로드 성공');
-    } catch(e){
+      document.getElementById('status').textContent = '✅ 지도 로드 성공';
+    } catch(e) {
       console.error(e);
-      setStatus('❌ 지도 초기화 에러: ' + (e && e.message ? e.message : e));
+      document.getElementById('status').textContent = '❌ 지도 초기화 에러: ' + (e.message||e);
     }
-  }
+  });
 
-  // 3초 안에 kakao가 안 뜨면 도메인/키 이슈 힌트 표시
-  setTimeout(() => {
+  // 3초 내 kakao가 없으면 힌트 표시
+  setTimeout(()=>{
     if (typeof kakao === 'undefined' || !kakao.maps) {
-      setStatus('❌ SDK가 준비되지 않았습니다. (키/도메인 등록 확인 필요)');
+      document.getElementById('status').textContent = '❌ SDK가 준비되지 않음(도메인/키 확인)';
     }
   }, 3000);
 </script>
+

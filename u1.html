@@ -121,10 +121,10 @@
   <div id="lock-box">
     <h1>U1 빌딩 맛집</h1>
     <p>접근 권한이 필요합니다. 비밀번호를 입력해 주세요.</p>
-    <input id="lock-pass" type="password" inputmode="numeric" placeholder="비밀번호 (4자리)" maxlength="16" autocomplete="current-password" />
+    <input id="lock-pass" type="password" inputmode="numeric" placeholder="비밀번호 (4자리)" maxlength="16" autocomplete="current-password" onkeydown="if(event.key==='Enter'){ tryEnter(); }" />
     <div id="lock-actions">
-      <button id="lock-submit" class="btn primary" type="button">입장</button>
-      <button id="lock-clear" class="btn" type="button">지우기</button>
+      <button id="lock-submit" class="btn primary" type="button" onclick="tryEnter()">입장</button>
+      <button id="lock-clear" class="btn" type="button" onclick="clearPass()">지우기</button>
     </div>
     <div id="lock-error"></div>
   </div>
@@ -746,5 +746,69 @@ function bootApp(){
   }
 }
 </script>
+  
+<script>
+/* ===== LOCK SAFE MODE =====
+   - 이벤트 리스너 없이 onclick/onkeydown으로 직접 호출
+   - 실패 시 콘솔/alert로 바로 확인 가능
+*/
+(function(){
+  // 요소 캐시
+  var PASS = '1004';
+  var overlay = document.getElementById('lock-overlay');
+  var app = document.getElementById('app');
+  var input = document.getElementById('lock-pass');
+  var err = document.getElementById('lock-error');
+
+  // 방어: 요소 누락 시 알림
+  if(!overlay || !app || !input || !err){
+    console.error('[LOCK] 요소를 찾지 못했습니다.', { overlay, app, input, err });
+  }
+
+  // 전역 함수로 노출 (onclick에서 사용)
+  window.tryEnter = function(){
+    try {
+      var v = (input && input.value ? input.value.trim() : '');
+      if (v === PASS) {
+        if (err) err.textContent = '';
+        if (overlay) overlay.style.display = 'none';
+        if (app) app.style.display = 'block';
+        // 앱 부팅 시도
+        try {
+          if (typeof bootApp === 'function') {
+            bootApp();
+          } else {
+            console.warn('[LOCK] bootApp 함수가 정의되지 않았습니다.');
+            alert('비번 통과! 하지만 bootApp이 정의되어 있지 않아 앱을 시작하지 못했습니다.');
+          }
+        } catch(e){
+          console.error('[LOCK] bootApp 실행 오류:', e);
+          alert('비번 통과했지만 앱 시작 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+        }
+      } else {
+        if (err) err.textContent = '비밀번호가 올바르지 않습니다.';
+        if (input) { input.select(); input.focus(); }
+      }
+    } catch (e){
+      console.error('[LOCK] tryEnter 예외:', e);
+      alert('입장 처리 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+    }
+  };
+
+  window.clearPass = function(){
+    try {
+      if (input) input.value = '';
+      if (err) err.textContent = '';
+      if (input) input.focus();
+    } catch(e){
+      console.error('[LOCK] clearPass 예외:', e);
+    }
+  };
+
+  // 초기에 포커스
+  try { setTimeout(function(){ if(input) input.focus(); }, 0); } catch(e){}
+})();
+</script>
+
 </body>
 </html>

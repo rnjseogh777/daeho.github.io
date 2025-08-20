@@ -21,7 +21,7 @@
     .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent;font-weight:700}
     .btn.light{background:#ffffff;color:#111827;border-color:#e5e7eb}
     .grid{display:grid;gap:18px}
-    @media(min-width:1024px){ .grid.cols-2{grid-template-columns:1fr 480px} }  /* 좌:지도, 우:패널 */
+    @media(min-width:1024px){ .grid.cols-2{grid-template-columns:1fr 480px} }
     .card{background:linear-gradient(180deg,#0b1220 0%,#0a0f1a 100%);border:1px solid var(--border);border-radius:18px;padding:18px}
     .section-title{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .section-title .bar{width:28px;height:2px;background:var(--accent);opacity:.85}
@@ -51,17 +51,25 @@
     .pill{padding:6px 10px;border:1px solid #243043;border-radius:999px;background:#0b1220}
 
     /* 사다리 */
-    .ladder-config{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-    .ladder-config .field{display:flex;flex-direction:column;gap:6px}
-    .ladder-grid{display:grid;gap:8px}
-    .ladder-names, .ladder-results{display:grid;gap:8px}
-    .ladder-names input, .ladder-results input{
-      width:120px;max-width:140px;padding:8px 10px;border-radius:10px;border:1px solid #243043;background:#0b1220;color:var(--text)
+    #ladder-section .ladder-config{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    #ladder-section .field{display:flex;flex-direction:column;gap:6px}
+    #ladder-section input[type="number"],
+    #ladder-section input[type="text"]{
+      width:120px;max-width:150px;padding:8px 10px;border-radius:10px;border:1px solid #243043;background:#0b1220;color:var(--text)
     }
-    .ladder-wrap{overflow:auto}
-    svg.ladder{width:100%;min-width:560px;background:#08101b;border-radius:12px;border:1px solid #1f2937}
-    .result-list{display:grid;gap:6px;margin-top:12px}
-    .result-item{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border:1px solid #243043;border-radius:10px;background:#0b1220}
+    #ladder-section .names-grid{display:grid;gap:8px}
+    #ladder-section .name-row{display:flex;gap:8px;align-items:center}
+    #ladder-section .name-row input{flex:1}
+    #ladder-section .btn{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text);font-weight:700;cursor:pointer}
+    #ladder-section .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent}
+    #ladder-section .btn.good{background:#10b981;color:#062015;border-color:#0e7e5a}
+    #ladder-section .btn:disabled{opacity:.5;cursor:not-allowed}
+    #ladder-section .muted{color:#9aa3b2}
+    #ladder-section .reveal-list{display:grid;gap:6px;margin-top:10px}
+    #ladder-section .reveal-item{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border:1px solid #243043;border-radius:10px;background:#0b1220}
+    #ladder-section .toast{margin-top:6px;font-size:13px;color:#c7eefc;min-height:18px}
+    #ladder-section .ladder-wrap{overflow:auto}
+    #ladder-section svg{width:100%;min-width:560px;background:#08101b;border-radius:12px;border:1px solid #1f2937}
   </style>
 </head>
 <body>
@@ -70,7 +78,6 @@
     <nav>
       <div class="brand">내 홈페이지 <span>Matjip</span></div>
       <div class="navlinks">
-        <!-- 모두 상대경로! (프로젝트 페이지/유저 페이지 둘 다 호환) -->
         <a href="index.html">Home</a>
         <a href="stock.html">Stock Market</a>
         <a href="matjip.html">맛집</a>
@@ -114,65 +121,40 @@
     <p class="muted" style="margin-top:8px">현재 지도에 표시된(필터 반영) 식당 중 하나를 무작위로 추천합니다.</p>
   </section>
 
- <!-- 사다리타기 -->
-<section class="card" id="ladder-section">
-  <style>
-    /* 사다리 섹션 전용 (충돌 최소화) */
-    #ladder-section .ladder-config{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-    #ladder-section .field{display:flex;flex-direction:column;gap:6px}
-    #ladder-section input[type="number"],
-    #ladder-section input[type="text"]{
-      width:120px;max-width:150px;padding:8px 10px;border-radius:10px;border:1px solid #243043;background:#0b1220;color:var(--text)
-    }
-    #ladder-section .names-grid{display:grid;gap:8px}
-    #ladder-section .name-row{display:flex;gap:8px;align-items:center}
-    #ladder-section .name-row input{flex:1}
-    #ladder-section .btn{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text);font-weight:700;cursor:pointer}
-    #ladder-section .btn.primary{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:#02131e;border-color:transparent}
-    #ladder-section .btn.good{background:#10b981;color:#062015;border-color:#0e7e5a}
-    #ladder-section .btn:disabled{opacity:.5;cursor:not-allowed}
-    #ladder-section .muted{color:#9aa3b2}
-    #ladder-section .reveal-list{display:grid;gap:6px;margin-top:10px}
-    #ladder-section .reveal-item{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border:1px solid #243043;border-radius:10px;background:#0b1220}
-    #ladder-section .toast{margin-top:6px;font-size:13px;color:#c7eefc;min-height:18px}
-    #ladder-section .ladder-wrap{overflow:auto}
-    #ladder-section svg{width:100%;min-width:560px;background:#08101b;border-radius:12px;border:1px solid #1f2937}
-  </style>
+  <!-- 사다리타기 -->
+  <section class="card" id="ladder-section">
+    <div class="section-title"><div class="bar"></div><h2 style="margin:0">사다리타기 (3~8인)</h2></div>
 
-  <div class="section-title">
-    <div class="bar"></div><h2 style="margin:0">사다리타기 (3~8인)</h2>
-  </div>
+    <div class="ladder-config">
+      <div class="field">
+        <label>인원수 (3~8)</label>
+        <input type="number" id="ladder2-players" min="3" max="8" value="4"/>
+      </div>
+      <div class="field">
+        <label>통과 개수</label>
+        <input type="number" id="ladder2-pass" min="0" max="8" value="2"/>
+      </div>
+      <div class="field">
+        <label>꽝 개수</label>
+        <input type="number" id="ladder2-fail" min="0" max="8" value="2"/>
+      </div>
+      <div class="field" style="align-self:flex-end;">
+        <button id="ladder2-start" class="btn primary">사다리 시작</button>
+      </div>
+      <div class="field" style="align-self:flex-end;">
+        <button id="ladder2-reset" class="btn">리셋</button>
+      </div>
+    </div>
 
-  <div class="ladder-config">
-    <div class="field">
-      <label>인원수 (3~8)</label>
-      <input type="number" id="ladder2-players" min="3" max="8" value="4"/>
-    </div>
-    <div class="field">
-      <label>통과 개수</label>
-      <input type="number" id="ladder2-pass" min="0" max="8" value="2"/>
-    </div>
-    <div class="field">
-      <label>꽝 개수</label>
-      <input type="number" id="ladder2-fail" min="0" max="8" value="2"/>
-    </div>
-    <div class="field" style="align-self:flex-end;">
-      <button id="ladder2-start" class="btn primary">사다리 시작</button>
-    </div>
-    <div class="field" style="align-self:flex-end;">
-      <button id="ladder2-reset" class="btn">리셋</button>
-    </div>
-  </div>
+    <div class="names-grid" id="ladder2-names"></div>
+    <div class="toast" id="ladder2-toast"></div>
 
-  <div class="names-grid" id="ladder2-names"></div>
-  <div class="toast" id="ladder2-toast"></div>
+    <div class="ladder-wrap" style="margin-top:10px">
+      <svg id="ladder2-svg" height="420" viewBox="0 0 1000 620" preserveAspectRatio="none"></svg>
+    </div>
 
-  <div class="ladder-wrap" style="margin-top:10px">
-    <svg id="ladder2-svg" height="420" viewBox="0 0 1000 620" preserveAspectRatio="none"></svg>
-  </div>
-
-  <div class="reveal-list" id="ladder2-reveals"></div>
-</section>
+    <div class="reveal-list" id="ladder2-reveals"></div>
+  </section>
 
   <div class="footer">
     <small>© <span id="year"></span> 내 홈페이지 · 모든 권리 보유</small>
@@ -181,12 +163,15 @@
 
 <!-- Kakao Maps JS (services=Places/Geocoder), autoload=false 필수 -->
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=6096c5ef0866cfa555f1040e3f21bc62&libraries=services&autoload=false"></script>
+
 <script>
+(() => {
+  // 연도
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // ---- 1) 카테고리 정의/매핑 ----
+  // ===== 공통 유틸 =====
   const CATEGORIES = ['전체','한식','중식','일식','양식','카페','기타'];
-  function mapCuisine(catName=''){
+  const mapCuisine = (catName='') => {
     const c = catName.toLowerCase();
     if (c.includes('한식') || c.includes('분식') || c.includes('치킨') || c.includes('고기') || c.includes('국밥')) return '한식';
     if (c.includes('중식') || c.includes('중화')) return '중식';
@@ -194,19 +179,20 @@
     if (c.includes('양식') || c.includes('이탈리아') || c.includes('피자') || c.includes('버거') || c.includes('스테이크') || c.includes('파스타')) return '양식';
     if (c.includes('카페') || c.includes('디저트') || c.includes('제과')) return '카페';
     return '기타';
-  }
+  };
+  const clamp = (v,min,max)=> Math.max(min, Math.min(max, v));
 
-  // ---- 2) SDK 로드 완료 후 init ----
+  // ===== 상태(지도/목록) =====
+  let map, places, ALL_RESULTS=[], MARKERS=[], CURRENT_FILTER='전체', MENU_MAP=null;
+
+  // SDK 로드 후 초기화
   kakao.maps.load(initMap);
-
-  let map, places, ALL_RESULTS=[], MARKERS=[], CURRENT_FILTER='전체';
 
   function initMap(){
     const mapEl = document.getElementById('map');
     map = new kakao.maps.Map(mapEl, { center: new kakao.maps.LatLng(37.523, 126.926), level: 4 });
     places = new kakao.maps.services.Places(map);
 
-    // 태영빌딩 주소 → 좌표로 중심 이동
     const geocoder = new kakao.maps.services.Geocoder();
     geocoder.addressSearch('서울 영등포구 여의공원로 111', (res, status) => {
       if (status === kakao.maps.services.Status.OK && res[0]) {
@@ -215,21 +201,18 @@
         new kakao.maps.Marker({ map, position: center, title: '태영빌딩' });
         loadPlaces(center);
       } else {
-        // 지오코딩 실패 시 현재 중심으로라도 검색
         loadPlaces(map.getCenter());
       }
     });
 
     renderFilterChips();
     setupWhatToEat();
-    setupLadder();
+    LadderV2.setup(); // 사다리 초기화
   }
 
-  // ---- 3) 반경 내 음식점 검색(FD6) ----
   function loadPlaces(center){
     ALL_RESULTS=[]; clearMarkers();
-
-    const opts = { location:center, radius:800 }; // 800m 반경
+    const opts = { location:center, radius:800 };
     const accum = (data,status,pag)=>{
       if(status === kakao.maps.services.Status.OK){
         ALL_RESULTS = ALL_RESULTS.concat(data);
@@ -237,14 +220,12 @@
         else { renderList(); renderMarkers(); refreshPick(); }
       }else{
         document.getElementById('place-list').innerHTML = '<li class="muted">주변에서 식당을 찾지 못했습니다.</li>';
-        refreshPick(); // 빈 상태 처리
+        refreshPick();
       }
     };
-
     places.categorySearch('FD6', accum, opts);
   }
 
-  // ---- 4) 필터/목록/상세/마커 ----
   function renderFilterChips(){
     const box = document.getElementById('filters');
     box.innerHTML='';
@@ -264,10 +245,7 @@
     });
   }
 
-  function byFilter(item){
-    if (CURRENT_FILTER==='전체') return true;
-    return mapCuisine(item.category_name) === CURRENT_FILTER;
-  }
+  const byFilter = (item) => CURRENT_FILTER==='전체' ? true : mapCuisine(item.category_name) === CURRENT_FILTER;
 
   function renderList(){
     const ul = document.getElementById('place-list');
@@ -301,9 +279,7 @@
     if (items.length) map.setBounds(bounds, 40, 40, 40, 40);
   }
 
-  // ---- 5) (선택) 커스텀 메뉴 JSON 로딩 ----
-  // 레포 루트 기준: ./data/menus.json  (없어도 동작)
-  let MENU_MAP=null;
+  // (선택) 커스텀 메뉴 JSON
   fetch('data/menus.json').then(r=>r.ok ? r.json() : null).then(j=>MENU_MAP=j).catch(()=>{});
 
   function showDetail(item){
@@ -315,7 +291,6 @@
     const naverLink = `https://map.naver.com/v5/search/${encodeURIComponent(item.place_name)}`;
     const googleLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.place_name + ' ' + addr)}`;
 
-    // 기본: 외부 링크(카카오/네이버/구글). 커스텀 menus.json 있으면 그걸 우선 표시.
     let menuHTML = `<div class="muted">* 메뉴는 외부 페이지를 참고하세요.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
         <a class="btn" href="${item.place_url}" target="_blank" rel="noopener">카카오에서 보기</a>
@@ -342,26 +317,17 @@
     `;
   }
 
-  // ===============================
-  // [오늘 뭐먹지?] 랜덤 추천
-  // ===============================
+  // ===== 오늘 뭐먹지 =====
   function setupWhatToEat(){
     document.getElementById('pick-refresh').addEventListener('click', refreshPick);
   }
-
-  function getFilteredItems(){
-    return ALL_RESULTS.filter(byFilter);
-  }
-
+  const getFilteredItems = () => ALL_RESULTS.filter(byFilter);
   function refreshPick(){
     const nameEl = document.getElementById('pick-name');
     const metaEl = document.getElementById('pick-meta');
     const items = getFilteredItems();
     if (!items.length){
-      nameEl.textContent = '추천할 식당이 없습니다.';
-      nameEl.classList.add('muted');
-      metaEl.textContent = '';
-      return;
+      nameEl.textContent = '추천할 식당이 없습니다.'; nameEl.classList.add('muted'); metaEl.textContent = ''; return;
     }
     const pick = items[Math.floor(Math.random()*items.length)];
     nameEl.textContent = pick.place_name;
@@ -369,253 +335,248 @@
     metaEl.textContent = `${pick.category_name} · ${pick.road_address_name || pick.address_name || ''}`;
   }
 
-  // ===============================
-  // 사다리타기 (3~8인, 당첨/꽝 개수)
-  // ===============================
-// ===============================
-// 사다리타기 v2 (요구사항 1~8 충족)
-// ===============================
-function setupLadder(){
-  const MIN=3, MAX=8, DEFAULT_ROWS=12, RUNG_DENSITY=0.35;
-  // DOM
-  const $players = document.getElementById('ladder2-players');
-  const $pass    = document.getElementById('ladder2-pass');
-  const $fail    = document.getElementById('ladder2-fail');
-  const $start   = document.getElementById('ladder2-start');
-  const $reset   = document.getElementById('ladder2-reset');
-  const $names   = document.getElementById('ladder2-names');
-  const $svg     = document.getElementById('ladder2-svg');
-  const $toast   = document.getElementById('ladder2-toast');
-  const $reveals = document.getElementById('ladder2-reveals');
+  // ===== 사다리 v2 (IIFE 내부 네임스페이스로 충돌 제거) =====
+  const LadderV2 = (() => {
+    const MIN=3, MAX=8, DEFAULT_ROWS=12, RUNG_DENSITY=0.35;
+    // DOM
+    const $players = () => document.getElementById('ladder2-players');
+    const $pass    = () => document.getElementById('ladder2-pass');
+    const $fail    = () => document.getElementById('ladder2-fail');
+    const $start   = () => document.getElementById('ladder2-start');
+    const $reset   = () => document.getElementById('ladder2-reset');
+    const $names   = () => document.getElementById('ladder2-names');
+    const $svg     = () => document.getElementById('ladder2-svg');
+    const $toast   = () => document.getElementById('ladder2-toast');
+    const $reveals = () => document.getElementById('ladder2-reveals');
 
-  // STATE
-  let playerCount = clamp(parseInt($players.value||4,10),MIN,MAX);
-  let nameList = Array.from({length:playerCount}, (_,i)=>`참가자${i+1}`);
-  let passCount = clamp(parseInt($pass.value||2,10),0,playerCount);
-  let failCount = clamp(parseInt($fail.value||2,10),0,playerCount);
-  let started=false;
-  let ladder=null;              // {rows, cols, rungs:boolean[rows][cols-1]}
-  let bottomResults=[];         // ['통과'|'꽝'] length = cols
-  let revealedByTopIndex={};    // { [topIdx]: {endCol,result} }
-  let highlightPoints=null;
+    // State
+    let playerCount = 4;
+    let nameList = Array.from({length:4}, (_,i)=>`참가자${i+1}`);
+    let passCount = 2;
+    let failCount = 2;
+    let started=false;
+    let ladder=null;              // {rows, cols, rungs:boolean[rows][cols-1]}
+    let bottomResults=[];         // ['통과'|'꽝']
+    let revealedByTopIndex={};    // { [topIdx]: {endCol,result} }
+    let highlightPoints=null;
 
-  // SVG layout
-  const VIEW_W=1000, VIEW_H=620, MARGIN_L=90, MARGIN_R=90, TOP_Y=80, BOTTOM_Y=540;
+    // SVG layout
+    const VIEW_W=1000, VIEW_H=620, MARGIN_L=90, MARGIN_R=90, TOP_Y=80, BOTTOM_Y=540;
 
-  // helpers
-  function clamp(v,lo,hi){ return Math.max(lo, Math.min(hi, v)); }
-  function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
-  function setToast(msg){ $toast.textContent = msg||''; }
+    // helpers
+    const shuffle = (a)=>{ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; };
+    const setToast = (msg)=> { $toast().textContent = msg||''; };
+    const countsValid = ()=> (playerCount>=MIN && playerCount<=MAX && passCount>=0 && failCount>=0 && passCount+failCount===playerCount);
+    const namesValid = ()=> (nameList.length===playerCount && nameList.every(n=>n.trim().length>0));
 
-  function countsValid(){
-    return (playerCount>=MIN && playerCount<=MAX &&
-            passCount>=0 && failCount>=0 &&
-            passCount + failCount === playerCount);
-  }
-  function namesValid(){ return nameList.length===playerCount && nameList.every(n=>n.trim().length>0); }
-
-  // name inputs
-  function renderNameInputs(){
-    $names.innerHTML='';
-    $names.style.gridTemplateColumns = `repeat(${playerCount}, minmax(160px,1fr))`;
-    for(let i=0;i<playerCount;i++){
-      const row=document.createElement('div'); row.className='name-row';
-      const inp=document.createElement('input'); inp.type='text';
-      inp.value=nameList[i]; inp.disabled=started;
-      inp.placeholder=`참가자 ${i+1}`;
-      inp.addEventListener('input', e=>{ nameList[i]=e.target.value; });
-      const btn=document.createElement('button'); btn.className='btn good'; btn.textContent='확인';
-      btn.addEventListener('click', ()=> onClickName(i));
-      row.appendChild(inp); row.appendChild(btn); $names.appendChild(row);
-    }
-  }
-
-  // ladder generation
-  function generateLadder(cols, rows){
-    const rungs = Array.from({length:rows}, ()=> Array(cols-1).fill(false));
-    for(let r=0;r<rows;r++){
-      let c=0;
-      while(c<cols-1){
-        if(Math.random()<RUNG_DENSITY){ rungs[r][c]=true; c+=2; } // 인접 금지
-        else c+=1;
+    function renderNameInputs(){
+      const namesEl = $names();
+      namesEl.innerHTML='';
+      namesEl.style.gridTemplateColumns = `repeat(${playerCount}, minmax(160px,1fr))`;
+      for(let i=0;i<playerCount;i++){
+        const row=document.createElement('div'); row.className='name-row';
+        const inp=document.createElement('input'); inp.type='text';
+        inp.value=nameList[i]; inp.disabled=started;
+        inp.placeholder=`참가자 ${i+1}`;
+        inp.addEventListener('input', e=>{ nameList[i]=e.target.value; });
+        const btn=document.createElement('button'); btn.className='btn good'; btn.textContent='확인';
+        btn.addEventListener('click', ()=> onClickName(i));
+        row.appendChild(inp); row.appendChild(btn); namesEl.appendChild(row);
       }
     }
-    return { rows, cols, rungs };
-  }
-  function xPositions(){
-    const innerW = VIEW_W - MARGIN_L - MARGIN_R;
-    const gap = innerW / (playerCount - 1);
-    return Array.from({length:playerCount}, (_,i)=> MARGIN_L + gap*i);
-  }
-  function yRungPositions(){
-    const rows = ladder? ladder.rows : DEFAULT_ROWS;
-    const h = BOTTOM_Y - TOP_Y;
-    return Array.from({length:rows}, (_,r)=> TOP_Y + (h*(r+1))/(rows+1));
-  }
 
-  // trace path for a top column
-  function tracePathPoints(startCol){
-    if(!ladder) return {points:[], endCol:startCol};
-    const xs = xPositions(), ys = yRungPositions();
-    let col=startCol; const pts=[];
-    pts.push([xs[col], TOP_Y]);
-    for(let r=0;r<ladder.rows;r++){
-      const y=ys[r];
-      pts.push([xs[col], y]); // down
-      if(ladder.rungs[r][col]){ pts.push([xs[col+1], y]); col=col+1; }
-      else if(col>0 && ladder.rungs[r][col-1]){ pts.push([xs[col-1], y]); col=col-1; }
-    }
-    pts.push([xs[col], BOTTOM_Y]);
-    return {points:pts, endCol:col};
-  }
-
-  // draw all
-  function draw(){
-    const xs = xPositions(), ys = yRungPositions();
-    $svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
-    $svg.innerHTML='';
-
-    // title
-    const title = svgText(VIEW_W/2, 36, '사다리 타기', {size:20, weight:700, fill:'#e5e7eb'}); $svg.appendChild(title);
-
-    // top names + indices
-    xs.forEach((x,i)=>{
-      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-      const circle = svgCircle(x, TOP_Y-24, 14, {fill:'#1e293b', stroke:'#334155'});
-      const tIdx   = svgText(x, TOP_Y-20, String(i+1), {size:12, fill:'#e5e7eb'});
-      const tName  = svgText(x, TOP_Y-38, nameList[i], {size:12, fill:'#cbd5e1'});
-      g.appendChild(circle); g.appendChild(tIdx); g.appendChild(tName); $svg.appendChild(g);
-    });
-
-    // vertical lines
-    xs.forEach(x=>{
-      $svg.appendChild(svgLine(x, TOP_Y, x, BOTTOM_Y, {stroke:'#334155', width:3}));
-    });
-
-    // rungs
-    if(ladder){
-      for(let r=0;r<ladder.rows;r++){
-        for(let c=0;c<ladder.cols-1;c++){
-          if(!ladder.rungs[r][c]) continue;
-          $svg.appendChild(svgLine(xs[c], ys[r], xs[c+1], ys[r], {stroke:'#475569', width:4}));
+    function generateLadder(cols, rows){
+      const rungs = Array.from({length:rows}, ()=> Array(cols-1).fill(false));
+      for(let r=0;r<rows;r++){
+        let c=0;
+        while(c<cols-1){
+          if(Math.random()<RUNG_DENSITY){ rungs[r][c]=true; c+=2; } else c+=1;
         }
       }
+      return { rows, cols, rungs };
+    }
+    function xPositions(){
+      const innerW = VIEW_W - MARGIN_L - MARGIN_R;
+      const gap = innerW / (playerCount - 1);
+      return Array.from({length:playerCount}, (_,i)=> MARGIN_L + gap*i);
+    }
+    function yRungPositions(){
+      const rows = ladder? ladder.rows : DEFAULT_ROWS;
+      const h = BOTTOM_Y - TOP_Y;
+      return Array.from({length:rows}, (_,r)=> TOP_Y + (h*(r+1))/(rows+1));
+    }
+    function tracePathPoints(startCol){
+      if(!ladder) return {points:[], endCol:startCol};
+      const xs = xPositions(), ys = yRungPositions();
+      let col=startCol; const pts=[];
+      pts.push([xs[col], TOP_Y]);
+      for(let r=0;r<ladder.rows;r++){
+        const y=ys[r];
+        pts.push([xs[col], y]);
+        if(ladder.rungs[r][col]){ pts.push([xs[col+1], y]); col=col+1; }
+        else if(col>0 && ladder.rungs[r][col-1]){ pts.push([xs[col-1], y]); col=col-1; }
+      }
+      pts.push([xs[col], BOTTOM_Y]);
+      return {points:pts, endCol:col};
     }
 
-    // highlight path
-    if(highlightPoints && highlightPoints.length){
-      const poly=document.createElementNS('http://www.w3.org/2000/svg','polyline');
-      poly.setAttribute('points', highlightPoints.map(p=>p.join(',')).join(' '));
-      poly.setAttribute('fill','none'); poly.setAttribute('stroke','#22d3ee'); poly.setAttribute('stroke-width','8');
-      poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('stroke-linecap','round');
-      poly.style.filter='drop-shadow(0 0 6px rgba(34,211,238,.6))';
-      $svg.appendChild(poly);
-    }
+    function draw(){
+      const svg = $svg();
+      const xs = xPositions(), ys = yRungPositions();
+      svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
+      svg.innerHTML='';
 
-    // bottom results (hidden until revealed)
-    const revealedCols = new Set(Object.values(revealedByTopIndex).map(v=>v.endCol));
-    xs.forEach((x,i)=>{
-      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-      const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      rect.setAttribute('x', x-36); rect.setAttribute('y', BOTTOM_Y+16);
-      rect.setAttribute('width', 72); rect.setAttribute('height', 28); rect.setAttribute('rx', 10);
-      rect.setAttribute('fill', '#0f172a'); rect.setAttribute('stroke', '#334155');
-      const t = svgText(x, BOTTOM_Y+35, revealedCols.has(i) ? bottomResults[i] : '?', {
-        size:14,
-        fill: revealedCols.has(i) ? (bottomResults[i]==='통과'?'#34d399':'#f87171') : '#94a3b8',
-        weight:700
+      // title
+      svg.appendChild(svgText(VIEW_W/2, 36, '사다리 타기', {size:20, weight:700, fill:'#e5e7eb'}));
+
+      // top names + indices
+      xs.forEach((x,i)=>{
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.appendChild(svgCircle(x, TOP_Y-24, 14, {fill:'#1e293b', stroke:'#334155'}));
+        g.appendChild(svgText(x, TOP_Y-20, String(i+1), {size:12, fill:'#e5e7eb'}));
+        g.appendChild(svgText(x, TOP_Y-38, nameList[i], {size:12, fill:'#cbd5e1'}));
+        svg.appendChild(g);
       });
-      g.appendChild(rect); g.appendChild(t); $svg.appendChild(g);
-    });
-  }
 
-  // svg helpers
-  function svgLine(x1,y1,x2,y2,{stroke='#999',width=1}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','line'); el.setAttribute('x1',x1); el.setAttribute('y1',y1); el.setAttribute('x2',x2); el.setAttribute('y2',y2); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',width); return el; }
-  function svgText(x,y,text,{size=12,fill='#e5e7eb',weight=400}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','text'); el.setAttribute('x',x); el.setAttribute('y',y); el.setAttribute('text-anchor','middle'); el.setAttribute('fill',fill); el.style.fontSize=`${size}px`; el.style.fontWeight=String(weight); el.textContent=text; return el; }
-  function svgCircle(cx,cy,r,{fill='#000',stroke='#333'}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','circle'); el.setAttribute('cx',cx); el.setAttribute('cy',cy); el.setAttribute('r',r); el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); return el; }
+      // vertical lines
+      xs.forEach(x=> svg.appendChild(svgLine(x, TOP_Y, x, BOTTOM_Y, {stroke:'#334155', width:3})));
 
-  // interaction
-  function onStart(){
-    setToast('');
-    if(!countsValid()){ setToast('인원수와 통과/꽝 개수의 합이 인원수와 같아야 합니다.'); return; }
-    if(!namesValid()){ setToast('이름을 모두 입력해 주세요.'); return; }
+      // rungs
+      if(ladder){
+        for(let r=0;r<ladder.rows;r++){
+          for(let c=0;c<ladder.cols-1;c++){
+            if(!ladder.rungs[r][c]) continue;
+            svg.appendChild(svgLine(xs[c], ys[r], xs[c+1], ys[r], {stroke:'#475569', width:4}));
+          }
+        }
+      }
 
-    ladder = generateLadder(playerCount, DEFAULT_ROWS);
-    bottomResults = shuffle([ ...Array(passCount).fill('통과'), ...Array(playerCount - passCount).fill('꽝') ]);
-    revealedByTopIndex = {}; highlightPoints=null; started=true;
+      // highlight path
+      if(highlightPoints && highlightPoints.length){
+        const poly=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+        poly.setAttribute('points', highlightPoints.map(p=>p.join(',')).join(' '));
+        poly.setAttribute('fill','none'); poly.setAttribute('stroke','#22d3ee'); poly.setAttribute('stroke-width','8');
+        poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('stroke-linecap','round');
+        poly.style.filter='drop-shadow(0 0 6px rgba(34,211,238,.6))';
+        svg.appendChild(poly);
+      }
 
-    // 입력 비활성
-    $players.disabled = true; $pass.disabled = true; $fail.disabled = true;
-    $names.querySelectorAll('input').forEach(i=> i.disabled = true);
-
-    draw();
-  }
-
-  function onReset(){
-    playerCount = 4; passCount=2; failCount=2;
-    nameList = Array.from({length:playerCount}, (_,i)=>`참가자${i+1}`);
-    ladder=null; bottomResults=[]; revealedByTopIndex={}; highlightPoints=null; started=false; setToast('');
-    $players.disabled=false; $pass.disabled=false; $fail.disabled=false;
-    $players.value='4'; $pass.value='2'; $fail.value='2'; renderNameInputs(); draw();
-    $reveals.innerHTML='';
-  }
-
-  function onClickName(idx){
-    if(!started || !ladder){ setToast("먼저 '사다리 시작'을 눌러 게임을 시작하세요."); return; }
-    const {points, endCol} = tracePathPoints(idx);
-    const result = bottomResults[endCol];
-    highlightPoints = points;
-    revealedByTopIndex[idx] = { endCol, result };
-    addRevealItem(idx, endCol, result);
-    setToast(`${nameList[idx]}: ${result==='통과' ? '통과!' : '꽝'}`);
-    draw();
-  }
-
-  function addRevealItem(topIdx, endCol, result){
-    // 이미 있으면 갱신
-    let row = document.getElementById(`ladder2-re-${topIdx}`);
-    const text = `${nameList[topIdx]} → ${result} (도착 ${endCol+1})`;
-    if(!row){
-      row = document.createElement('div'); row.id=`ladder2-re-${topIdx}`;
-      row.className='reveal-item';
-      const left=document.createElement('div'); left.textContent=text;
-      left.style.color = result==='통과' ? '#34d399' : '#fca5a5';
-      const btn=document.createElement('button'); btn.className='btn primary'; btn.style.padding='6px 8px'; btn.style.fontSize='12px'; btn.textContent='경로 보기';
-      btn.addEventListener('click', ()=>{ const {points}=tracePathPoints(Number(topIdx)); highlightPoints=points; draw(); });
-      row.appendChild(left); row.appendChild(btn); $reveals.appendChild(row);
-    }else{
-      row.firstChild.textContent = text;
-      row.firstChild.style.color = result==='통과' ? '#34d399' : '#fca5a5';
+      // bottom results
+      const revealedCols = new Set(Object.values(revealedByTopIndex).map(v=>v.endCol));
+      xs.forEach((x,i)=>{
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        rect.setAttribute('x', x-36); rect.setAttribute('y', BOTTOM_Y+16);
+        rect.setAttribute('width', 72); rect.setAttribute('height', 28); rect.setAttribute('rx', 10);
+        rect.setAttribute('fill', '#0f172a'); rect.setAttribute('stroke', '#334155');
+        const t = svgText(x, BOTTOM_Y+35, revealedCols.has(i) ? bottomResults[i] : '?', {
+          size:14,
+          fill: revealedCols.has(i) ? (bottomResults[i]==='통과'?'#34d399':'#f87171') : '#94a3b8',
+          weight:700
+        });
+        g.appendChild(rect); g.appendChild(t); svg.appendChild(g);
+      });
     }
-  }
 
-  // inputs & events
-  function syncFailToPlayers(){
-    failCount = clamp(playerCount - passCount, 0, playerCount);
-    $fail.value = String(failCount);
-  }
-  $players.addEventListener('input', e=>{
-    playerCount = clamp(parseInt(e.target.value||'4',10), MIN, MAX);
-    e.target.value = String(playerCount);
-    // 이름 수 맞추기
-    if(nameList.length<playerCount){ for(let i=nameList.length;i<playerCount;i++) nameList.push(`참가자${i+1}`); }
-    else if(nameList.length>playerCount){ nameList.length=playerCount; }
-    syncFailToPlayers(); renderNameInputs(); draw();
-  });
-  $pass.addEventListener('input', e=>{
-    passCount = clamp(parseInt(e.target.value||'0',10), 0, playerCount);
-    e.target.value = String(passCount);
-    syncFailToPlayers(); draw();
-  });
-  $fail.addEventListener('input', e=>{
-    failCount = clamp(parseInt(e.target.value||'0',10), 0, playerCount);
-    e.target.value = String(failCount); draw();
-  });
+    // svg helpers
+    function svgLine(x1,y1,x2,y2,{stroke='#999',width=1}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','line'); el.setAttribute('x1',x1); el.setAttribute('y1',y1); el.setAttribute('x2',x2); el.setAttribute('y2',y2); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',width); return el; }
+    function svgText(x,y,text,{size=12,fill='#e5e7eb',weight=400}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','text'); el.setAttribute('x',x); el.setAttribute('y',y); el.setAttribute('text-anchor','middle'); el.setAttribute('fill',fill); el.style.fontSize=`${size}px`; el.style.fontWeight=String(weight); el.textContent=text; return el; }
+    function svgCircle(cx,cy,r,{fill='#000',stroke='#333'}={}){ const el=document.createElementNS('http://www.w3.org/2000/svg','circle'); el.setAttribute('cx',cx); el.setAttribute('cy',cy); el.setAttribute('r',r); el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); return el; }
 
-  $start.addEventListener('click', onStart);
-  $reset.addEventListener('click', onReset);
+    // interactions
+    function onStart(){
+      setToast('');
+      if(!countsValid()){ setToast('인원수와 통과/꽝 개수의 합이 인원수와 같아야 합니다.'); return; }
+      if(!namesValid()){ setToast('이름을 모두 입력해 주세요.'); return; }
 
-  // init
-  renderNameInputs(); draw();
-}
+      ladder = generateLadder(playerCount, DEFAULT_ROWS);
+      bottomResults = shuffle([ ...Array(passCount).fill('통과'), ...Array(playerCount - passCount).fill('꽝') ]);
+      revealedByTopIndex = {}; highlightPoints=null; started=true;
 
+      $players().disabled = true; $pass().disabled = true; $fail().disabled = true;
+      $names().querySelectorAll('input').forEach(i=> i.disabled = true);
+
+      draw();
+    }
+
+    function onReset(){
+      playerCount = 4; passCount=2; failCount=2;
+      nameList = Array.from({length:playerCount}, (_,i)=>`참가자${i+1}`);
+      ladder=null; bottomResults=[]; revealedByTopIndex={}; highlightPoints=null; started=false; setToast('');
+      $players().disabled=false; $pass().disabled=false; $fail().disabled=false;
+      $players().value='4'; $pass().value='2'; $fail().value='2'; renderNameInputs(); draw();
+      $reveals().innerHTML='';
+    }
+
+    function onClickName(idx){
+      if(!started || !ladder){ setToast("먼저 '사다리 시작'을 눌러 게임을 시작하세요."); return; }
+      const {points, endCol} = tracePathPoints(idx);
+      const result = bottomResults[endCol];
+      highlightPoints = points;
+      revealedByTopIndex[idx] = { endCol, result };
+      addRevealItem(idx, endCol, result);
+      setToast(`${nameList[idx]}: ${result==='통과' ? '통과!' : '꽝'}`);
+      draw();
+    }
+
+    function addRevealItem(topIdx, endCol, result){
+      let row = document.getElementById(`ladder2-re-${topIdx}`);
+      const text = `${nameList[topIdx]} → ${result} (도착 ${endCol+1})`;
+      if(!row){
+        row = document.createElement('div'); row.id=`ladder2-re-${topIdx}`;
+        row.className='reveal-item';
+        const left=document.createElement('div'); left.textContent=text;
+        left.style.color = result==='통과' ? '#34d399' : '#fca5a5';
+        const btn=document.createElement('button'); btn.className='btn primary'; btn.style.padding='6px 8px'; btn.style.fontSize='12px'; btn.textContent='경로 보기';
+        btn.addEventListener('click', ()=>{ const {points}=tracePathPoints(Number(topIdx)); highlightPoints=points; draw(); });
+        row.appendChild(left); row.appendChild(btn); $reveals().appendChild(row);
+      }else{
+        row.firstChild.textContent = text;
+        row.firstChild.style.color = result==='통과' ? '#34d399' : '#fca5a5';
+      }
+    }
+
+    function syncFailToPlayers(){
+      failCount = clamp(playerCount - passCount, 0, playerCount);
+      $fail().value = String(failCount);
+    }
+
+    function bindEvents(){
+      $players().addEventListener('input', e=>{
+        playerCount = clamp(parseInt(e.target.value||'4',10), MIN, MAX);
+        e.target.value = String(playerCount);
+        if(nameList.length<playerCount){ for(let i=nameList.length;i<playerCount;i++) nameList.push(`참가자${i+1}`); }
+        else if(nameList.length>playerCount){ nameList.length=playerCount; }
+        syncFailToPlayers(); renderNameInputs(); draw();
+      });
+      $pass().addEventListener('input', e=>{
+        passCount = clamp(parseInt(e.target.value||'0',10), 0, playerCount);
+        e.target.value = String(passCount);
+        syncFailToPlayers(); draw();
+      });
+      $fail().addEventListener('input', e=>{
+        failCount = clamp(parseInt(e.target.value||'0',10), 0, playerCount);
+        e.target.value = String(failCount); draw();
+      });
+
+      $start().addEventListener('click', onStart);
+      $reset().addEventListener('click', onReset);
+    }
+
+    function setup(){
+      // 초기값 동기화
+      playerCount = clamp(parseInt($players().value||4,10),MIN,MAX);
+      nameList = Array.from({length:playerCount}, (_,i)=>`참가자${i+1}`);
+      passCount = clamp(parseInt($pass().value||2,10),0,playerCount);
+      failCount = clamp(parseInt($fail().value||2,10),0,playerCount);
+      bindEvents();
+      renderNameInputs(); draw();
+    }
+
+    return { setup };
+  })();
+
+})();
+</script>
+</body>
+</html>

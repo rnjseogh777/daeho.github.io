@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</title>
   <style>
-    :root{--bg:#0b1220;--fg:#e5e7eb;--muted:#9aa3af;--accent:#60a5fa;--border:#1f2937}
+    :root{--bg:#0b1220;--fg:#e5e7eb;--muted:#9aa3af;--accent:#60a5fa;--danger:#ef4444;--border:#1f2937}
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:#0b1220;color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
     .wrap{max-width:980px;margin:0 auto;padding:24px}
     h1{font-size:22px;margin:0 0 12px}
     .card{background:linear-gradient(180deg,#0f172a,#0a1020);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
     label{font-size:14px;color:var(--muted)}
     input[type="number"], select{background:#0f1a33;border:1px solid var(--border);color:var(--fg);padding:8px 10px;border-radius:10px}
     input[type="range"]{width:200px}
@@ -20,17 +20,35 @@
     .drop{margin-top:12px;border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;color:var(--muted);background:#0a0f1f}
     .drop.drag{border-color:#60a5fa;color:#cbd5e1}
     .list{margin-top:16px}
-    .item{display:grid;grid-template-columns:1.2fr .8fr .8fr 140px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #111827}
+    .item{display:grid;grid-template-columns:1.2fr .6fr .6fr 160px 120px 40px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #111827}
     .item a{color:#93c5fd}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:#cbd5e1}
     .hint{font-size:13px;color:var(--muted);margin-top:8px}
+    .xbtn{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#1f2937;border:1px solid #243041;color:#e5e7eb;cursor:pointer}
+    .xbtn:hover{background:#2b364b}
+    .xbtn:active{transform:scale(0.98)}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.7);display:flex;align-items:center;justify-content:center;z-index:1000}
+    .hidden{display:none!important}
+    .dialog{width:min(1000px,95vw);background:#0f1629;border:1px solid #1e293b;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:16px}
+    .dialog header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .dialog h2{font-size:18px;margin:0}
+    .close{background:transparent;color:#e5e7eb;border:1px solid #334155;border-radius:10px;padding:8px 10px;cursor:pointer}
+    .previews{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .vp{position:relative;border:1px solid #1f2937;border-radius:10px;background:#0a0f1f;overflow:hidden;height:340px}
+    .vp img{position:absolute;top:0;left:0;transform-origin:top left;user-select:none;-webkit-user-drag:none}
+    .vp .label{position:absolute;left:8px;top:8px;background:rgba(2,6,23,.6);border:1px solid #1f2937;border-radius:8px;padding:4px 8px;font-size:12px;color:#cbd5e1}
+    .zoomrow{display:flex;align-items:center;gap:12px;margin-top:12px}
+    .zoomrow input[type="range"]{width:260px}
+    .mini{font-size:12px;color:#9aa3af}
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</h1>
     <div class="card">
-      <div class="row" style="align-items:center">
+      <div class="row">
         <label>출력 형식
           <select id="fmt">
             <option value="webp" selected>WebP (권장)</option>
@@ -44,18 +62,46 @@
         <label>가로 최대(px) — 비워두면 원본 유지
           <input id="maxw" type="number" min="1" placeholder="(예: 1200)"/>
         </label>
-        <button id="btnClear" class="secondary">목록 비우기</button>
+        <button id="btnPick" class="secondary" type="button">파일 선택</button>
+        <button id="btnSaveAll" type="button">일괄 다운로드</button>
+        <button id="btnClear" class="secondary" type="button">목록 비우기</button>
       </div>
 
       <div id="drop" class="drop">
-        <strong>여기에 이미지 파일(다중) 드롭</strong><br/>
-        또는 <button id="btnPick" class="secondary" type="button">파일 선택</button>
+        <strong>여기에 이미지 파일(다중) 드롭</strong>
         <input id="picker" type="file" accept="image/*" multiple hidden/>
         <div class="hint">모든 작업은 브라우저 내에서만 수행됩니다. 업로드되지 않습니다.</div>
       </div>
 
       <div class="list" id="list"></div>
       <div class="hint">※ PNG→PNG는 용량 감소가 적을 수 있습니다. 대용량 PNG는 <strong>WebP</strong>로 내보내면 효과가 큽니다. 투명(알파)이 필요하면 WebP 유지, 필요 없으면 JPEG도 가능.</div>
+    </div>
+  </div>
+
+  <!-- 미리보기 모달 -->
+  <div id="previewModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <header>
+        <h2>전/후 품질 비교 (확대/드래그)</h2>
+        <button class="close" id="btnCloseModal">닫기</button>
+      </header>
+      <div class="mini" id="infoLine"></div>
+      <div class="previews">
+        <div class="vp" id="vpBefore">
+          <span class="label">원본</span>
+          <img id="imgBefore" alt="before">
+        </div>
+        <div class="vp" id="vpAfter">
+          <span class="label">압축본</span>
+          <img id="imgAfter" alt="after">
+        </div>
+      </div>
+      <div class="zoomrow">
+        <span class="mini">확대</span>
+        <input id="zoom" type="range" min="100" max="400" step="10" value="100"/>
+        <span class="mini" id="zoomVal">100%</span>
+        <span class="mini">(양쪽 동기화)</span>
+      </div>
     </div>
   </div>
 
@@ -69,6 +115,17 @@ const $quality = document.getElementById('quality');
 const $qv = document.getElementById('qv');
 const $maxw = document.getElementById('maxw');
 const $btnClear = document.getElementById('btnClear');
+const $btnSaveAll = document.getElementById('btnSaveAll');
+
+const $modal = document.getElementById('previewModal');
+const $btnCloseModal = document.getElementById('btnCloseModal');
+const $imgBefore = document.getElementById('imgBefore');
+const $imgAfter = document.getElementById('imgAfter');
+const $vpBefore = document.getElementById('vpBefore');
+const $vpAfter = document.getElementById('vpAfter');
+const $zoom = document.getElementById('zoom');
+const $zoomVal = document.getElementById('zoomVal');
+const $infoLine = document.getElementById('infoLine');
 
 $qv.textContent = $quality.value;
 $quality.addEventListener('input', () => { $qv.textContent = $quality.value; });
@@ -84,7 +141,14 @@ $picker.onchange = (e) => handleFiles(e.target.files);
 });
 $drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 
-$btnClear.onclick = ()=>{ $list.innerHTML=''; };
+// Blob URL 및 행 상태 레지스트리
+const createdUrls = new Set(); // 모든 생성된 blob url (원본/압축본)
+
+$btnClear.onclick = ()=>{
+  createdUrls.forEach(u => URL.revokeObjectURL(u));
+  createdUrls.clear();
+  $list.innerHTML='';
+};
 
 function fmtBytes(bytes){
   if(bytes===0) return '0 B';
@@ -101,14 +165,26 @@ async function handleFiles(fileList){
 }
 
 async function processFile(file){
-  const url = URL.createObjectURL(file);
+  const origUrl = URL.createObjectURL(file);
+  createdUrls.add(origUrl);
   try{
-    const img = await loadImage(url);
+    const img = await loadImage(origUrl);
     const {blob, outName, outW, outH} = await encode(img, file.name);
+    const outUrl = URL.createObjectURL(blob);
+    createdUrls.add(outUrl);
+
     const row = document.createElement('div');
     row.className='item';
+    row.dataset.outUrl = outUrl;
+    row.dataset.origUrl = origUrl;
+    row.dataset.origName = file.name;
+    row.dataset.outName = outName;
+    row.dataset.origSize = file.size;
+    row.dataset.outSize = blob.size;
+    row.dataset.dim = `${outW}×${outH}`;
+
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = outUrl;
     a.download = outName;
     a.textContent = outName;
 
@@ -118,18 +194,37 @@ async function processFile(file){
     col2.textContent = fmtBytes(file.size);
     const col3 = document.createElement('div');
     col3.textContent = fmtBytes(blob.size);
+
     const col4 = document.createElement('div');
     col4.appendChild(a);
 
-    row.appendChild(col1); row.appendChild(col2); row.appendChild(col3); row.appendChild(col4);
+    const col5 = document.createElement('div');
+    const previewBtn = document.createElement('button');
+    previewBtn.className='secondary';
+    previewBtn.type='button';
+    previewBtn.textContent='미리보기';
+    previewBtn.onclick = ()=> openPreview(row);
+    col5.appendChild(previewBtn);
+
+    const col6 = document.createElement('div');
+    const del = document.createElement('button');
+    del.className='xbtn';
+    del.type='button';
+    del.title='이 항목 삭제';
+    del.innerHTML='✕';
+    del.onclick = () => removeRow(row);
+    col6.appendChild(del);
+
+    row.appendChild(col1); row.appendChild(col2); row.appendChild(col3); row.appendChild(col4); row.appendChild(col5); row.appendChild(col6);
     $list.appendChild(row);
-  }finally{
-    URL.revokeObjectURL(url);
+  }catch(err){
+    console.error(err);
+    URL.revokeObjectURL(origUrl);
+    createdUrls.delete(origUrl);
   }
 }
 
 function loadImage(url){
-  // createImageBitmap가 빠르고 EXIF 회전 처리도 브라우저가 해줌
   if('createImageBitmap' in window){
     return fetch(url).then(r=>r.blob()).then(b=>createImageBitmap(b));
   }
@@ -154,7 +249,6 @@ async function encode(bitmapOrImg, inName){
   const cnv = document.createElement('canvas');
   cnv.width = outW; cnv.height = outH;
   const ctx = cnv.getContext('2d');
-  // 고품질 리사이즈(웹킷/크롬)
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bitmapOrImg, 0, 0, outW, outH);
@@ -165,8 +259,6 @@ async function encode(bitmapOrImg, inName){
   if(fmt==='png') type = 'image/png';
 
   const q = Math.max(0.1, Math.min(1, ($quality.value|0)/100));
-
-  // PNG는 quality 파라미터가 무시될 수 있음(브라우저 구현 의존)
   const blob = await new Promise(res => cnv.toBlob(res, type, fmt==='png'?undefined:q));
 
   const base = inName.replace(/\.[^.]+$/, '');
@@ -175,8 +267,89 @@ async function encode(bitmapOrImg, inName){
   return {blob, outName, outW, outH};
 }
 
+function removeRow(row){
+  const outUrl = row?.dataset?.outUrl;
+  const origUrl = row?.dataset?.origUrl;
+  if(outUrl){ URL.revokeObjectURL(outUrl); createdUrls.delete(outUrl); }
+  if(origUrl){ URL.revokeObjectURL(origUrl); createdUrls.delete(origUrl); }
+  row.remove();
+}
+
+// ===== 일괄 다운로드 =====
+$btnSaveAll.onclick = async ()=>{
+  const rows = Array.from($list.querySelectorAll('.item'));
+  if(rows.length===0) return;
+  // 브라우저 팝업 차단을 피하기 위해 순차적으로 클릭
+  for(let i=0;i<rows.length;i++){
+    const a = rows[i].querySelector('a');
+    if(a){ a.click(); }
+    // 너무 빠른 연속 다운로드를 방지
+    await wait(180);
+  }
+};
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// ===== 전/후 미리보기(확대/드래그) =====
+let pv = { scale:1, ox:0, oy:0, dragging:false, sx:0, sy:0, bx:0, by:0 };
+function openPreview(row){
+  const origUrl = row.dataset.origUrl;
+  const outUrl = row.dataset.outUrl;
+  const before = new Image(); before.src = origUrl;
+  const after = new Image(); after.src = outUrl;
+  $imgBefore.src = origUrl;
+  $imgAfter.src = outUrl;
+  // 초기 스케일/오프셋
+  pv.scale = 1; pv.ox = 0; pv.oy = 0; syncTransform();
+  $zoom.value = 100; $zoomVal.textContent = '100%';
+  $infoLine.textContent = `${row.dataset.origName} → ${row.dataset.outName} | ${row.dataset.dim} | ${fmtBytes(row.dataset.origSize)} → ${fmtBytes(row.dataset.outSize)}`;
+  $modal.classList.remove('hidden');
+}
+
+$btnCloseModal.onclick = ()=>{ $modal.classList.add('hidden'); };
+
+$zoom.oninput = ()=>{
+  pv.scale = ($zoom.value|0)/100;
+  $zoomVal.textContent = `${$zoom.value}%`;
+  clampAndSync();
+};
+
+// 드래그로 패닝(양쪽 동기화)
+[$vpBefore,$vpAfter].forEach(vp=>{
+  vp.addEventListener('pointerdown', (e)=>{
+    vp.setPointerCapture(e.pointerId);
+    pv.dragging = true; pv.sx = e.clientX; pv.sy = e.clientY; pv.bx = pv.ox; pv.by = pv.oy;
+  });
+  vp.addEventListener('pointermove', (e)=>{
+    if(!pv.dragging) return;
+    const dx = e.clientX - pv.sx; const dy = e.clientY - pv.sy;
+    pv.ox = pv.bx + dx; pv.oy = pv.by + dy;
+    clampAndSync();
+  });
+  vp.addEventListener('pointerup', ()=>{ pv.dragging=false; });
+  vp.addEventListener('pointerleave', ()=>{ pv.dragging=false; });
+});
+
+function syncTransform(){
+  [$imgBefore,$imgAfter].forEach(img=>{
+    img.style.transform = `translate(${pv.ox}px, ${pv.oy}px) scale(${pv.scale})`;
+  });
+}
+
+function clampAndSync(){
+  // 이미지가 너무 밖으로 나가지 않도록 간단한 클램프
+  const vpRect = $vpBefore.getBoundingClientRect();
+  const img = $imgBefore;
+  const natW = img.naturalWidth || 1; const natH = img.naturalHeight || 1;
+  const w = natW * pv.scale; const h = natH * pv.scale;
+  const minX = Math.min(0, vpRect.width - w);
+  const minY = Math.min(0, vpRect.height - h);
+  pv.ox = Math.max(minX, Math.min(0, pv.ox));
+  pv.oy = Math.max(minY, Math.min(0, pv.oy));
+  syncTransform();
+}
+
 function escapeHtml(s){
-  return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+  return (s||'').toString().replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 }
 </script>
 </body>

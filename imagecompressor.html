@@ -20,33 +20,18 @@
     .drop{margin-top:12px;border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;color:var(--muted);background:#0a0f1f}
     .drop.drag{border-color:#60a5fa;color:#cbd5e1}
     .list{margin-top:16px}
-    .item{display:grid;grid-template-columns:1.2fr .6fr .6fr 160px 120px 40px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #111827}
+    .item{display:grid;grid-template-columns:1.2fr .6fr .6fr 160px 40px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #111827}
     .item a{color:#93c5fd}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:#cbd5e1}
     .hint{font-size:13px;color:var(--muted);margin-top:8px}
     .xbtn{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#1f2937;border:1px solid #243041;color:#e5e7eb;cursor:pointer}
     .xbtn:hover{background:#2b364b}
     .xbtn:active{transform:scale(0.98)}
-
-    /* Modal */
-    .modal{position:fixed;inset:0;background:rgba(2,6,23,.7);display:flex;align-items:center;justify-content:center;z-index:1000}
-    .hidden{display:none!important}
-    .dialog{width:min(1000px,95vw);background:#0f1629;border:1px solid #1e293b;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:16px}
-    .dialog header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .dialog h2{font-size:18px;margin:0}
-    .close{background:transparent;color:#e5e7eb;border:1px solid #334155;border-radius:10px;padding:8px 10px;cursor:pointer}
-    .previews{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .vp{position:relative;border:1px solid #1f2937;border-radius:10px;background:#0a0f1f;overflow:hidden;height:340px}
-    .vp img{position:absolute;top:0;left:0;transform-origin:top left;user-select:none;-webkit-user-drag:none}
-    .vp .label{position:absolute;left:8px;top:8px;background:rgba(2,6,23,.6);border:1px solid #1f2937;border-radius:8px;padding:4px 8px;font-size:12px;color:#cbd5e1}
-    .zoomrow{display:flex;align-items:center;gap:12px;margin-top:12px}
-    .zoomrow input[type="range"]{width:260px}
-    .mini{font-size:12px;color:#9aa3af}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</h1>
+    <h1>이미지 용량 압축 및 변환 (설치 불필요, 무제한 사용)</h1>
     <div class="card">
       <div class="row">
         <label>출력 형식
@@ -75,33 +60,7 @@
 
       <div class="list" id="list"></div>
       <div class="hint">※ PNG→PNG는 용량 감소가 적을 수 있습니다. 대용량 PNG는 <strong>WebP</strong>로 내보내면 효과가 큽니다. 투명(알파)이 필요하면 WebP 유지, 필요 없으면 JPEG도 가능.</div>
-    </div>
-  </div>
-
-  <!-- 미리보기 모달 -->
-  <div id="previewModal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="dialog">
-      <header>
-        <h2>전/후 품질 비교 (확대/드래그)</h2>
-        <button class="close" id="btnCloseModal">닫기</button>
-      </header>
-      <div class="mini" id="infoLine"></div>
-      <div class="previews">
-        <div class="vp" id="vpBefore">
-          <span class="label">원본</span>
-          <img id="imgBefore" alt="before">
-        </div>
-        <div class="vp" id="vpAfter">
-          <span class="label">압축본</span>
-          <img id="imgAfter" alt="after">
-        </div>
-      </div>
-      <div class="zoomrow">
-        <span class="mini">확대</span>
-        <input id="zoom" type="range" min="100" max="400" step="10" value="100"/>
-        <span class="mini" id="zoomVal">100%</span>
-        <span class="mini">(양쪽 동기화)</span>
-      </div>
+      <div class="hint"><strong>주의:</strong> <u>JPEG → PNG 변환</u>은 용량이 <u>더 커질 수</u> 있습니다. 형식 변환 전에 목적을 확인하세요.</div>
     </div>
   </div>
 
@@ -117,16 +76,6 @@ const $maxw = document.getElementById('maxw');
 const $btnClear = document.getElementById('btnClear');
 const $btnSaveAll = document.getElementById('btnSaveAll');
 
-const $modal = document.getElementById('previewModal');
-const $btnCloseModal = document.getElementById('btnCloseModal');
-const $imgBefore = document.getElementById('imgBefore');
-const $imgAfter = document.getElementById('imgAfter');
-const $vpBefore = document.getElementById('vpBefore');
-const $vpAfter = document.getElementById('vpAfter');
-const $zoom = document.getElementById('zoom');
-const $zoomVal = document.getElementById('zoomVal');
-const $infoLine = document.getElementById('infoLine');
-
 $qv.textContent = $quality.value;
 $quality.addEventListener('input', () => { $qv.textContent = $quality.value; });
 
@@ -141,8 +90,8 @@ $picker.onchange = (e) => handleFiles(e.target.files);
 });
 $drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 
-// Blob URL 및 행 상태 레지스트리
-const createdUrls = new Set(); // 모든 생성된 blob url (원본/압축본)
+// Blob URL 레지스트리
+const createdUrls = new Set();
 
 $btnClear.onclick = ()=>{
   createdUrls.forEach(u => URL.revokeObjectURL(u));
@@ -177,11 +126,6 @@ async function processFile(file){
     row.className='item';
     row.dataset.outUrl = outUrl;
     row.dataset.origUrl = origUrl;
-    row.dataset.origName = file.name;
-    row.dataset.outName = outName;
-    row.dataset.origSize = file.size;
-    row.dataset.outSize = blob.size;
-    row.dataset.dim = `${outW}×${outH}`;
 
     const a = document.createElement('a');
     a.href = outUrl;
@@ -199,23 +143,15 @@ async function processFile(file){
     col4.appendChild(a);
 
     const col5 = document.createElement('div');
-    const previewBtn = document.createElement('button');
-    previewBtn.className='secondary';
-    previewBtn.type='button';
-    previewBtn.textContent='미리보기';
-    previewBtn.onclick = ()=> openPreview(row);
-    col5.appendChild(previewBtn);
-
-    const col6 = document.createElement('div');
     const del = document.createElement('button');
     del.className='xbtn';
     del.type='button';
     del.title='이 항목 삭제';
     del.innerHTML='✕';
     del.onclick = () => removeRow(row);
-    col6.appendChild(del);
+    col5.appendChild(del);
 
-    row.appendChild(col1); row.appendChild(col2); row.appendChild(col3); row.appendChild(col4); row.appendChild(col5); row.appendChild(col6);
+    row.appendChild(col1); row.appendChild(col2); row.appendChild(col3); row.appendChild(col4); row.appendChild(col5);
     $list.appendChild(row);
   }catch(err){
     console.error(err);
@@ -253,12 +189,12 @@ async function encode(bitmapOrImg, inName){
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bitmapOrImg, 0, 0, outW, outH);
 
-  const fmt = $fmt.value; // webp/jpeg/png
+  const fmt = document.getElementById('fmt').value; // webp/jpeg/png
   let type = 'image/webp';
   if(fmt==='jpeg') type = 'image/jpeg';
   if(fmt==='png') type = 'image/png';
 
-  const q = Math.max(0.1, Math.min(1, ($quality.value|0)/100));
+  const q = Math.max(0.1, Math.min(1, (document.getElementById('quality').value|0)/100));
   const blob = await new Promise(res => cnv.toBlob(res, type, fmt==='png'?undefined:q));
 
   const base = inName.replace(/\.[^.]+$/, '');
@@ -279,74 +215,13 @@ function removeRow(row){
 $btnSaveAll.onclick = async ()=>{
   const rows = Array.from($list.querySelectorAll('.item'));
   if(rows.length===0) return;
-  // 브라우저 팝업 차단을 피하기 위해 순차적으로 클릭
   for(let i=0;i<rows.length;i++){
     const a = rows[i].querySelector('a');
     if(a){ a.click(); }
-    // 너무 빠른 연속 다운로드를 방지
     await wait(180);
   }
 };
 function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-// ===== 전/후 미리보기(확대/드래그) =====
-let pv = { scale:1, ox:0, oy:0, dragging:false, sx:0, sy:0, bx:0, by:0 };
-function openPreview(row){
-  const origUrl = row.dataset.origUrl;
-  const outUrl = row.dataset.outUrl;
-  const before = new Image(); before.src = origUrl;
-  const after = new Image(); after.src = outUrl;
-  $imgBefore.src = origUrl;
-  $imgAfter.src = outUrl;
-  // 초기 스케일/오프셋
-  pv.scale = 1; pv.ox = 0; pv.oy = 0; syncTransform();
-  $zoom.value = 100; $zoomVal.textContent = '100%';
-  $infoLine.textContent = `${row.dataset.origName} → ${row.dataset.outName} | ${row.dataset.dim} | ${fmtBytes(row.dataset.origSize)} → ${fmtBytes(row.dataset.outSize)}`;
-  $modal.classList.remove('hidden');
-}
-
-$btnCloseModal.onclick = ()=>{ $modal.classList.add('hidden'); };
-
-$zoom.oninput = ()=>{
-  pv.scale = ($zoom.value|0)/100;
-  $zoomVal.textContent = `${$zoom.value}%`;
-  clampAndSync();
-};
-
-// 드래그로 패닝(양쪽 동기화)
-[$vpBefore,$vpAfter].forEach(vp=>{
-  vp.addEventListener('pointerdown', (e)=>{
-    vp.setPointerCapture(e.pointerId);
-    pv.dragging = true; pv.sx = e.clientX; pv.sy = e.clientY; pv.bx = pv.ox; pv.by = pv.oy;
-  });
-  vp.addEventListener('pointermove', (e)=>{
-    if(!pv.dragging) return;
-    const dx = e.clientX - pv.sx; const dy = e.clientY - pv.sy;
-    pv.ox = pv.bx + dx; pv.oy = pv.by + dy;
-    clampAndSync();
-  });
-  vp.addEventListener('pointerup', ()=>{ pv.dragging=false; });
-  vp.addEventListener('pointerleave', ()=>{ pv.dragging=false; });
-});
-
-function syncTransform(){
-  [$imgBefore,$imgAfter].forEach(img=>{
-    img.style.transform = `translate(${pv.ox}px, ${pv.oy}px) scale(${pv.scale})`;
-  });
-}
-
-function clampAndSync(){
-  // 이미지가 너무 밖으로 나가지 않도록 간단한 클램프
-  const vpRect = $vpBefore.getBoundingClientRect();
-  const img = $imgBefore;
-  const natW = img.naturalWidth || 1; const natH = img.naturalHeight || 1;
-  const w = natW * pv.scale; const h = natH * pv.scale;
-  const minX = Math.min(0, vpRect.width - w);
-  const minY = Math.min(0, vpRect.height - h);
-  pv.ox = Math.max(minX, Math.min(0, pv.ox));
-  pv.oy = Math.max(minY, Math.min(0, pv.oy));
-  syncTransform();
-}
 
 function escapeHtml(s){
   return (s||'').toString().replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));

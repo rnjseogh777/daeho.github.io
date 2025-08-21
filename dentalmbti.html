@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>⚡ 치위생사 맞춤형 10유형 MBTI</title>
+  <meta name="description" content="치과 치위생사/상담 실무 상황 기반 10유형 테스트 — 진상 환자, 퇴근 5분 전, 야간 근무 등 리얼 시나리오로 알아보는 나의 유형!" />
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#11162a; --ink:#e8ebf4; --muted:#9aa3b2; --brand:#7c9dff; --accent:#68e4c6; --line:#1e2642; --good:#86efac; --warn:#fbbf24;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+      background:
+        radial-gradient(1200px 800px at 85% -10%, #1b2450 0%, #0f1430 45%, var(--bg) 100%),
+        linear-gradient(180deg, #0b1020 0%, #0b1020ee 40%, #0b1020 100%);
+      color:var(--ink); line-height:1.6;
+    }
+    a{color:var(--brand); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:920px; margin:0 auto; padding:28px 16px 80px}
+    header{display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:16px;}
+    .title{display:flex; gap:12px; align-items:center;}
+    h1{font-size:1.35rem; margin:0}
+    .badge{font-size:.8rem; color:#c7cffb; background:rgba(124,157,255,.12); border:1px solid rgba(124,157,255,.35); padding:4px 8px; border-radius:999px}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    .muted{color:var(--muted)}
+    .progress{height:8px; background:#0d1230; border:1px solid var(--line); border-radius:999px; overflow:hidden}
+    .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--brand), var(--accent))}
+    .q{margin:16px 0 12px; font-weight:700; font-size:1.05rem;}
+    .optgrid{display:grid; gap:10px; grid-template-columns:repeat(2, minmax(0, 1fr));}
+    .opt{
+      border:1px solid var(--line); padding:12px 12px; border-radius:12px; cursor:pointer; background:#0d1330;
+      display:flex; gap:10px; align-items:flex-start;
+    }
+    .opt input{margin-top:3px}
+    .opt:hover{border-color:#2b3568}
+    .opt[selected]{outline:2px solid var(--brand); border-color:transparent}
+    .controls{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    button{
+      background:linear-gradient(180deg, #223273, #1a2555); color:#eaf0ff; border:1px solid #2e3a7a; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700;
+    }
+    button.ghost{background:transparent; border:1px dashed #3a456e; color:#c8cfec}
+    button.good{background:linear-gradient(180deg, #1e5a39, #184b2f); border-color:#1f734a}
+    button.warn{background:linear-gradient(180deg, #7a3f12, #5b2f0c); border-color:#8f4f16}
+    .hint{font-size:.9rem; color:#c4cbff; margin:8px 0 0}
+    .hidden{display:none}
+    .result h2{margin:.2rem 0 .6rem}
+    .tag{display:inline-block; margin-right:8px; margin-top:6px; padding:4px 8px; border-radius:999px; font-size:.85rem; border:1px solid #33406e; background:#131a3a}
+    .desc{color:#d2d7f7}
+    .grid-2{display:grid; gap:14px; grid-template-columns:repeat(2, minmax(0, 1fr))}
+    @media (max-width:720px){ .optgrid,.grid-2{grid-template-columns:1fr} }
+    details{border:1px dashed #2c355e; border-radius:12px; padding:12px 14px; background:#0c1433; margin-top:14px}
+    details[open]{border-style:solid}
+    summary{cursor:pointer; font-weight:700}
+    .typebook li{margin:.35rem 0}
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid #314173; background:#0f1638; margin:4px 6px 0 0}
+    .small{font-size:.88rem}
+    footer{margin-top:28px; color:#8f97b8; font-size:.9rem}
+    .sr{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}
+    .longdesc{margin-top:10px; color:#cfd5ff; font-size:.95rem}
+    .longdesc ul{margin:6px 0 0 1.1rem}
+    .hr-line{height:1px; background:#1a2246; border:none; margin:12px 0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div style="font-size:1.4rem">🦷</div>
+        <div>
+          <h1>치위생사 맞춤형 10유형 MBTI</h1>
+          <div class="muted small">진상 환자 / 퇴근 5분 전 / 야간 근무 / 점심 메뉴… 리얼 상황 테스트</div>
+        </div>
+      </div>
+      <div class="badge">단독 페이지 • 오프라인 동작</div>
+    </header>
+
+    <!-- QUIZ PANEL -->
+    <section id="quiz" class="card">
+      <div class="muted small" id="progressLabel">0 / 8</div>
+      <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+
+      <form id="form" autocomplete="off">
+        <!-- Questions are injected here -->
+        <div id="qs"></div>
+
+        <div class="controls">
+          <button type="button" id="btnPrev" class="ghost">이전</button>
+          <button type="button" id="btnNext">다음</button>
+          <button type="submit" id="btnSubmit" class="good hidden">결과 보기</button>
+        </div>
+        <div class="hint">모든 문항에 답하면 결과가 나타납니다.</div>
+      </form>
+    </section>
+
+    <!-- RESULT PANEL -->
+    <section id="result" class="card hidden result" aria-live="polite">
+      <div class="muted small">결과</div>
+      <h2 id="resultTitle">—</h2>
+      <div id="resultDesc" class="desc">—</div>
+      <div id="resultLongDesc" class="longdesc hidden"></div>
+
+      <div style="margin-top:12px">
+        <span id="resultTags"></span>
+      </div>
+
+      <div class="controls" style="margin-top:16px">
+        <button type="button" id="btnCopyLink">결과 링크 복사</button>
+        <button type="button" id="btnShare" class="ghost">공유하기(모바일)</button>
+        <button type="button" id="btnCopyText" class="ghost">결과 텍스트 복사</button>
+        <button type="button" id="btnReset" class="warn">다시 하기</button>
+      </div>
+
+      <!-- ▼ 유형 모아보기: 결과 페이지에서만 노출 -->
+      <details id="typeBook" class="hidden">
+        <summary>다른 유형 목록 보기</summary>
+        <ul class="typebook" id="typeList"></ul>
+      </details>
+    </section>
+
+    <footer>
+      <div>🔗 공유 링크는 현재 페이지 주소에 결과 코드(<code>?r=타입</code>)를 덧붙여 생성됩니다.</div>
+      <div>© 2025 — 대호님 깃허브 배포용 단독 페이지. 수정/활용 자유.</div>
+    </footer>
+  </div>
+
+  <script>
+    // -----------------------------
+    // 1) TYPE DEFINITIONS (상세설명 포함)
+    // -----------------------------
+    const TYPES = [
+      {
+        id: 1, emoji:"🪥", name:"치석 파이터형",
+        desc:"초음파 스케일러로 세상 모든 치석과 전쟁 중. 요청이 과하면 일정부터 정리하고 들어가는 실전주의.",
+        longDesc:[
+          "치석·착색 제거에서 성취감 최대로 뽑아내는 타입",
+          "현장 우선: 장비/시간/감염관리 루틴을 먼저 점검",
+          "과다 요구엔 치료 범위·시간을 명확히 설정해 피로 누적 방지"
+        ],
+        tags:["현장집중","우선순위","단호함"]
+      },
+      {
+        id: 2, emoji:"📑", name:"기록 수호자형",
+        desc:"기록 누락은 곧 혼돈. 차트와 증거로 무장하는 ‘데이터 주도’ 실무왕.",
+        longDesc:[
+          "차트·치주포켓 기록·치석량 메모 등 ‘흔적 남기기’가 습관",
+          "이슈 발생 시 타임라인을 재구성해 원인 파악이 빠름",
+          "전원의 작업 지침을 문서화해 인수인계를 깔끔히"
+        ],
+        tags:["기록강박","정확성","근거중심"]
+      },
+      {
+        id: 3, emoji:"😊", name:"웃음 방패형",
+        desc:"말도 안 되는 요구도 미소로 흡수하는 대인전 설계자. 관계의 기술로 난이도 하락!",
+        longDesc:[
+          "감정완충 장치: 불만을 ‘요구’로 번역해 대화 가능 상태로 전환",
+          "고객의 말 ‘요지’를 긍정 언어로 재정렬해 협조를 유도",
+          "과도한 ‘맞춤’ 요구엔 병원 정책/안전 가이드를 부드럽게 제시"
+        ],
+        tags:["관계관리","서비스감정","위기완화"]
+      },
+      {
+        id: 4, emoji:"⏳", name:"칼퇴 시계형",
+        desc:"시간관리계의 실리주의자. 퇴근 5분 전부터 뇌가 집으로 가는 타입.",
+        longDesc:[
+          "마감 루틴이 확실: 소독·정리·쓰레기 분리·다음날 준비까지 체크",
+          "스케줄 지연 시 대안 플랜 B/C로 병목 최소화",
+          "야간 근무일엔 체력·탄수화물·수분 루틴을 미리 설계"
+        ],
+        tags:["우선순위","속도감","현실감각"]
+      },
+      {
+        id: 5, emoji:"☕", name:"카페인 엔진형",
+        desc:"카페인이 윤활유. 야간 근무도 원샷하면 재가동.",
+        longDesc:[
+          "카페인 타이밍 관리: 오전 집중/오후 슬럼프/야간 리부트",
+          "카페인 과다 시 수분·가벼운 스트레칭으로 부작용 완화",
+          "팀 사기 보정: 커피 픽업이 자연스런 팀케어로 이어짐"
+        ],
+        tags:["에너지관리","리추얼","지속력"]
+      },
+      {
+        id: 6, emoji:"🎤", name:"설득 마에스트로형",
+        desc:"설명, 비유, 공감의 3단 콤보로 불안을 신뢰로 바꾸는 상담의 연금술사.",
+        longDesc:[
+          "시각자료·모형·사진을 활용해 ‘보이는 설명’을 선호",
+          "금기어(과도한 전문용어) 대신 일상 언어로 불안 해소",
+          "치료 후 관리법을 ‘행동 단위’로 변환해 이행률 상승"
+        ],
+        tags:["커뮤니케이션","논리+공감","교육자"]
+      },
+      {
+        id: 7, emoji:"🧘", name:"멘탈 요가형",
+        desc:"“괜찮아요~ 다 잘 돼요”로 팀과 환자의 심박수를 낮추는 피스메이커.",
+        longDesc:[
+          "팀 번아웃 신호를 잘 포착: 간단한 체조/물/간식 제안",
+          "환자 공포 반응(땀/호흡/시선)을 안정화 루틴으로 케어",
+          "갈등 상황에서도 목소리 톤·속도를 낮춰 분위기 복원"
+        ],
+        tags:["안정감","감정케어","팀버퍼"]
+      },
+      {
+        id: 8, emoji:"🕵️‍♀️", name:"차트 탐험가형",
+        desc:"옛 기록·매뉴얼까지 발굴하는 데이터 사냥꾼. 근거의 미로를 환하게.",
+        longDesc:[
+          "이전 병력/검사결과/투약이력 교차 확인으로 오류 예방",
+          "기기 트러블 시 매뉴얼·커뮤니티 레퍼런스까지 신속 탐색",
+          "‘찾아보기’ 자체를 업무 표준으로 만들어 팀 지식 축적"
+        ],
+        tags:["탐색력","레퍼런스","문제해결"]
+      },
+      {
+        id: 9, emoji:"🐣", name:"스탭룸 개그러형",
+        desc:"밈·드립·상황극으로 휴게실 산소 공급. 긴장감 OFF, 팀 분위기 ON.",
+        longDesc:[
+          "현장 긴장 완화로 손 떨림·말 꼬임 등 실수율 감소에 기여",
+          "환자 앞에서는 ‘톤 조절’로 프로페셔널 유지",
+          "팀 행사·생일·작은 이벤트를 챙겨 조직 결속도↑"
+        ],
+        tags:["분위기메이커","리프레시","팀케어"]
+      },
+      {
+        id: 10, emoji:"📡", name:"원장님 위성형",
+        desc:"원장님 언어와 눈빛을 실시간 수신하는 초정밀 레이더 탑재.",
+        longDesc:[
+          "처치실/상담실 동시 모니터링으로 다음 동작을 예측",
+          "애매한 지시도 ‘의도’ 파악해 오해·중복 작업 방지",
+          "정책 변경·장비 업그레이드 시 팀 적용을 빠르게 리드"
+        ],
+        tags:["조직감각","상황판단","순간대응"]
+      }
+    ];
+
+    // -----------------------------
+    // 2) QUIZ DATA (8 QUESTIONS)
+    // -----------------------------
+    const QUESTIONS = [
+      {
+        t:"진상 고객이 들어왔다! 나는?",
+        a:[
+          {text:"차트부터 다시 확인", type:2},
+          {text:"끝까지 웃으며 응대", type:3},
+          {text:"원장님 호출부터", type:10},
+          {text:"속으로 퇴근 카운트다운", type:4},
+        ]
+      },
+      {
+        t:"퇴근 5분 전, 예약 없는 환자가 들어왔다!",
+        a:[
+          {text:"기록 확인하며 한숨", type:2},
+          {text:"“네^^” 억지 미소", type:3},
+          {text:"이미 가방에 손", type:4},
+          {text:"“오늘은 간단 치료만요”", type:1},
+        ]
+      },
+      {
+        t:"팀 회식에서 나는?",
+        a:[
+          {text:"짤과 드립으로 폭격", type:9},
+          {text:"원장님 옆자리 자동 착석", type:10},
+          {text:"차트 얘기하다 혼남", type:2},
+          {text:"술 대신 커피만 찾음", type:5},
+        ]
+      },
+      {
+        t:'환자가 “치료 무섭다”고 하면?',
+        a:[
+          {text:"“괜찮아요~ 다 잘 돼요”", type:7},
+          {text:"치료과정 20분 풀설명", type:6},
+          {text:"차트 보여주며 근거 제시", type:2},
+          {text:"원장님 눈빛 먼저 탐색", type:10},
+        ]
+      },
+      {
+        t:"환자 상담 준비할 때 나는?",
+        a:[
+          {text:"내부 기록/매뉴얼 총동원", type:8},
+          {text:"그냥 말빨로 설득", type:6},
+          {text:"“편하게 앉으세요~” 위로", type:7},
+          {text:"커피부터 마심", type:5},
+        ]
+      },
+      {
+        t:"점심시간이 되어간다. 메뉴를 고를 때 나는?",
+        a:[
+          {text:"치석 제거보다 어려운 선택", type:1},
+          {text:"결국 “그냥 어제 먹은 걸로…”", type:2},
+          {text:"단톡방에서 개그 치다 메뉴 놓침", type:9},
+          {text:"원장님이 뭘 드시는지 먼저 본다", type:10},
+        ]
+      },
+      {
+        t:"환자가 요구사항을 너무 많이 말할 때 나는?",
+        a:[
+          {text:"“그건 일정상 어렵습니다” 단호 모드", type:1},
+          {text:"결국 다 들어줌", type:3},
+          {text:"설명 10분 추가", type:6},
+          {text:"기록 다 적어둠", type:2},
+        ]
+      },
+      {
+        t:"오늘은 야간 근무가 있는 날이다. 내 머릿속에 드는 생각은?",
+        a:[
+          {text:"“커피 두 잔은 기본이지”", type:5},
+          {text:"“그래도 환자분들 힘내시라 해야지”", type:7},
+          {text:"“끝나고 뭐 먹을까?” 메뉴 탐색 모드", type:9},
+          {text:"“퇴근은 왜 이렇게 멀리 있냐…”", type:4},
+        ]
+      },
+    ];
+
+    // -----------------------------
+    // 3) BUILD QUIZ UI
+    // -----------------------------
+    const $qs = document.getElementById('qs');
+    const $form = document.getElementById('form');
+    const $btnPrev = document.getElementById('btnPrev');
+    const $btnNext = document.getElementById('btnNext');
+    const $btnSubmit = document.getElementById('btnSubmit');
+    const $bar = document.getElementById('bar');
+    const $progressLabel = document.getElementById('progressLabel');
+
+    const $quiz = document.getElementById('quiz');
+    const $result = document.getElementById('result');
+    const $resultTitle = document.getElementById('resultTitle');
+    const $resultDesc = document.getElementById('resultDesc');
+    const $resultLongDesc = document.getElementById('resultLongDesc');
+    const $resultTags = document.getElementById('resultTags');
+
+    const $btnCopyLink = document.getElementById('btnCopyLink');
+    const $btnShare = document.getElementById('btnShare');
+    const $btnCopyText = document.getElementById('btnCopyText');
+    const $btnReset = document.getElementById('btnReset');
+
+    const $typeBook = document.getElementById('typeBook');
+    const $typeList = document.getElementById('typeList');
+
+    let current = 0; // index of current question
+    const answers = new Array(QUESTIONS.length).fill(null);
+
+    function buildQuestion(i){
+      const q = QUESTIONS[i];
+      const qId = `q${i}`;
+      const wrap = document.createElement('div');
+      wrap.className = 'qwrap';
+      wrap.innerHTML = `
+        <div class="q">${i+1}. ${q.t}</div>
+        <div class="optgrid" role="group" aria-labelledby="${qId}">
+          ${q.a.map((opt, idx) => `
+            <label class="opt" data-q="${i}" data-a="${idx}" tabindex="0">
+              <input class="sr" type="radio" name="q${i}" value="${idx}" aria-label="${opt.text}">
+              <div><strong>${String.fromCharCode(65+idx)}.</strong> ${opt.text}</div>
+            </label>
+          `).join('')}
+        </div>
+      `;
+      // selection handler
+      wrap.querySelectorAll('.opt').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          select(i, parseInt(el.dataset.a,10));
+        });
+        el.addEventListener('keypress', (e)=>{
+          if(e.key==='Enter' || e.key===' ') { e.preventDefault(); select(i, parseInt(el.dataset.a,10)); }
+        });
+      });
+      return wrap;
+    }
+
+    function renderAll(){
+      $qs.innerHTML = '';
+      QUESTIONS.forEach((_, i)=> $qs.appendChild(buildQuestion(i)));
+      updateUI();
+    }
+
+    function select(qIdx, aIdx){
+      answers[qIdx] = aIdx;
+      // mark selected
+      const group = $qs.querySelectorAll(`.opt[data-q="${qIdx}"]`);
+      group.forEach(el=> el.removeAttribute('selected'));
+      const chosen = $qs.querySelector(`.opt[data-q="${qIdx}"][data-a="${aIdx}"]`);
+      if(chosen) { chosen.setAttribute('selected',''); }
+      updateUI();
+    }
+
+    function updateUI(){
+      // show only current question
+      document.querySelectorAll('.qwrap').forEach((node, i)=>{
+        node.style.display = (i===current) ? '' : 'none';
+      });
+      // progress
+      const answered = answers.filter(v=>v!==null).length;
+      $progressLabel.textContent = `${answered} / ${QUESTIONS.length}`;
+      $bar.style.width = `${(answered/QUESTIONS.length)*100}%`;
+
+      // buttons
+      $btnPrev.disabled = (current===0);
+      const isLast = (current===QUESTIONS.length-1);
+      $btnNext.classList.toggle('hidden', isLast);
+      $btnSubmit.classList.toggle('hidden', !isLast);
+    }
+
+    $btnPrev.addEventListener('click', ()=>{ if(current>0){ current--; updateUI(); } });
+    $btnNext.addEventListener('click', ()=>{
+      if(answers[current]===null){ shakeCurrent(); return; }
+      if(current<QUESTIONS.length-1){ current++; updateUI(); }
+    });
+    function shakeCurrent(){
+      const node = document.querySelectorAll('.qwrap')[current];
+      node.style.transition = 'transform .08s';
+      node.style.transform = 'translateX(6px)';
+      setTimeout(()=>{ node.style.transform = 'translateX(-6px)'; }, 80);
+      setTimeout(()=>{ node.style.transform = 'translateX(0)'; }, 160);
+    }
+
+    $form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      if(answers.some(v=>v===null)){ shakeCurrent(); return; }
+      const counts = tally();
+      const result = pickResult(counts);
+      showResult(result);
+      // push state with share code
+      const code = result.ids.join('-');
+      const url = new URL(location.href);
+      url.searchParams.set('r', code);
+      history.replaceState(null, '', url.toString());
+    });
+
+    function tally(){
+      const counts = new Map(TYPES.map(t=>[t.id,0]));
+      answers.forEach((aIdx, qi)=>{
+        const typeId = QUESTIONS[qi].a[aIdx].type;
+        counts.set(typeId, counts.get(typeId)+1);
+      });
+      return counts;
+    }
+
+    function pickResult(counts){
+      const arr = [...counts.entries()].sort((a,b)=> b[1]-a[1] || a[0]-b[0]);
+      const max = arr[0][1];
+      const top = arr.filter(([id,c])=> c===max).map(([id])=>id);
+      if(top.length===1){
+        return { ids:[top[0]], mixed:false };
+      }else{
+        return { ids: top.slice(0,2), mixed:true };
+      }
+    }
+
+    function showResult({ids, mixed}){
+      const ts = ids.map(id=> TYPES.find(t=>t.id===id));
+      const title = mixed
+        ? `${ts[0].emoji} ${ts[0].name} + ${ts[1].emoji} ${ts[1].name}`
+        : `${ts[0].emoji} ${ts[0].name}`;
+      const desc = mixed
+        ? `${ts[0].desc} <br/><br/>그리고 <strong>${ts[1].name}</strong> 기질이 강하게 함께 나타납니다. 상황에 따라 두 성향이 번갈아 전면에 등장해 밸런스를 잡는 타입!`
+        : ts[0].desc;
+
+      $quiz.classList.add('hidden');
+      $result.classList.remove('hidden');
+      $resultTitle.innerHTML = title;
+      $resultDesc.innerHTML = desc;
+
+      // 상세설명(해당 타입들의 longDesc 합쳐서 노출)
+      const longBlocks = ts.map(t => `
+        <div class="hr-line"></div>
+        <div><strong>${t.emoji} ${t.name} 상세설명</strong></div>
+        <ul>${t.longDesc.map(li=>`<li>${li}</li>`).join('')}</ul>
+      `).join('');
+      $resultLongDesc.innerHTML = longBlocks;
+      $resultLongDesc.classList.remove('hidden');
+
+      // tags (union)
+      const tagSet = new Set();
+      ts.forEach(t => t.tags.forEach(tag => tagSet.add(tag)));
+      $resultTags.innerHTML = [...tagSet].map(tag => `<span class="pill">#${tag}</span>`).join('');
+
+      // ▼ 유형 모아보기: 결과 페이지에서만 보이도록 여기서만 세팅/표시
+      $typeList.innerHTML = TYPES.map(t=>`
+        <li>
+          <strong>${t.emoji} ${t.name}</strong> — <span class="muted">${t.desc}</span>
+          <details style="margin-top:6px"><summary>상세설명 펼치기</summary>
+            <div class="longdesc"><ul>${t.longDesc.map(li=>`<li>${li}</li>`).join('')}</ul></div>
+          </details>
+        </li>
+      `).join('');
+      $typeBook.classList.remove('hidden');
+    }
+
+    // -----------------------------
+    // 4) SHARE / COPY
+    // -----------------------------
+    function currentShareURL(){
+      const url = new URL(location.href);
+      if($result.classList.contains('hidden')){
+        url.searchParams.delete('r');
+      }
+      return url.toString();
+    }
+    async function copyToClipboard(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        toast("클립보드에 복사됐어요!");
+      }catch{
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        toast("복사 완료!");
+      }
+    }
+    function toast(msg){
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.position='fixed'; t.style.left='50%'; t.style.top='16px'; t.style.transform='translateX(-50%)';
+      t.style.background='#111833'; t.style.border='1px solid #2f3a6d'; t.style.padding='8px 12px'; t.style.borderRadius='10px';
+      t.style.boxShadow='0 8px 30px rgba(0,0,0,.4)'; t.style.zIndex=9999;
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; }, 1200);
+      setTimeout(()=>{ t.remove(); }, 1600);
+    }
+    document.getElementById('btnCopyLink').addEventListener('click', ()=>{
+      if(!$result.classList.contains('hidden')){
+        const url = new URL(location.href);
+        if(!url.searchParams.get('r')){
+          const counts = tally();
+          const picked = pickResult(counts);
+          url.searchParams.set('r', picked.ids.join('-'));
+          history.replaceState(null, '', url.toString());
+        }
+      }
+      copyToClipboard(currentShareURL());
+    });
+    document.getElementById('btnShare').addEventListener('click', async ()=>{
+      const url = currentShareURL();
+      const title = "치위생사 10유형 MBTI — 내 결과";
+      const text = $result.classList.contains('hidden') ? "내 성향 알아보기" : $resultTitle.textContent.trim();
+      if(navigator.share){
+        try{ await navigator.share({title, text, url}); }catch{}
+      }else{
+        copyToClipboard(url);
+      }
+    });
+    document.getElementById('btnCopyText').addEventListener('click', ()=>{
+      const text = `치위생사 10유형 결과\n${$resultTitle.textContent.trim()}\n\n${$resultDesc.textContent.replace(/\s+/g,' ').trim()}\n\n링크: ${currentShareURL()}`;
+      copyToClipboard(text);
+    });
+
+    document.getElementById('btnReset').addEventListener('click', ()=>{
+      for(let i=0;i<answers.length;i++) answers[i]=null;
+      current = 0;
+      renderAll();
+      $result.classList.add('hidden');
+      $typeBook.classList.add('hidden'); // 결과 페이지에서만 보이게 재숨김
+      const url = new URL(location.href); url.searchParams.delete('r');
+      history.replaceState(null, '', url.toString());
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+
+    // -----------------------------
+    // 5) DEEPLINK (?r=1 or ?r=1-4) → 결과 페이지로 바로 렌더
+    // -----------------------------
+    function tryOpenByCode(){
+      const url = new URL(location.href);
+      const r = url.searchParams.get('r');
+      if(!r) return false;
+      const ids = r.split('-').map(s=>parseInt(s,10)).filter(n=>!isNaN(n));
+      if(ids.length===0) return false;
+      const ok = ids.every(id => TYPES.some(t=>t.id===id));
+      if(!ok) return false;
+      showResult({ids, mixed: ids.length>1});
+      return true;
+    }
+
+    // -----------------------------
+    // Init
+    // -----------------------------
+    renderAll();
+    if(!tryOpenByCode()){
+      setTimeout(()=>{
+        const first = document.querySelector('.opt[data-q="0"][data-a="0"]');
+        first && first.focus();
+      }, 50);
+    }
+  </script>
+</body>
+</html>

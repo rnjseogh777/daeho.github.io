@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</title>
+  <style>
+    :root{--bg:#0b1220;--fg:#e5e7eb;--muted:#9aa3af;--accent:#60a5fa;--border:#1f2937}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#0b1220;color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    h1{font-size:22px;margin:0 0 12px}
+    .card{background:linear-gradient(180deg,#0f172a,#0a1020);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    label{font-size:14px;color:var(--muted)}
+    input[type="number"], select{background:#0f1a33;border:1px solid var(--border);color:var(--fg);padding:8px 10px;border-radius:10px}
+    input[type="range"]{width:200px}
+    button{background:var(--accent);color:#051225;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button.secondary{background:#18223a;color:var(--fg);border:1px solid var(--border)}
+    .drop{margin-top:12px;border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;color:var(--muted);background:#0a0f1f}
+    .drop.drag{border-color:#60a5fa;color:#cbd5e1}
+    .list{margin-top:16px}
+    .item{display:grid;grid-template-columns:1.2fr .8fr .8fr 140px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #111827}
+    .item a{color:#93c5fd}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:#cbd5e1}
+    .hint{font-size:13px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</h1>
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <label>출력 형식
+          <select id="fmt">
+            <option value="webp" selected>WebP (권장)</option>
+            <option value="jpeg">JPEG (알파 없음)</option>
+            <option value="png">PNG (무손실, 효과 적을 수 있음)</option>
+          </select>
+        </label>
+        <label>품질 <span id="qv">80</span>
+          <input id="quality" type="range" min="10" max="100" value="80"/>
+        </label>
+        <label>가로 최대(px) — 비워두면 원본 유지
+          <input id="maxw" type="number" min="1" placeholder="(예: 1200)"/>
+        </label>
+        <button id="btnClear" class="secondary">목록 비우기</button>
+      </div>
+
+      <div id="drop" class="drop">
+        <strong>여기에 이미지 파일(다중) 드롭</strong><br/>
+        또는 <button id="btnPick" class="secondary" type="button">파일 선택</button>
+        <input id="picker" type="file" accept="image/*" multiple hidden/>
+        <div class="hint">모든 작업은 브라우저 내에서만 수행됩니다. 업로드되지 않습니다.</div>
+      </div>
+
+      <div class="list" id="list"></div>
+      <div class="hint">※ PNG→PNG는 용량 감소가 적을 수 있습니다. 대용량 PNG는 <strong>WebP</strong>로 내보내면 효과가 큽니다. 투명(알파)이 필요하면 WebP 유지, 필요 없으면 JPEG도 가능.</div>
+    </div>
+  </div>
+
+<script>
+const $drop = document.getElementById('drop');
+const $picker = document.getElementById('picker');
+const $btnPick = document.getElementById('btnPick');
+const $list = document.getElementById('list');
+const $fmt = document.getElementById('fmt');
+const $quality = document.getElementById('quality');
+const $qv = document.getElementById('qv');
+const $maxw = document.getElementById('maxw');
+const $btnClear = document.getElementById('btnClear');
+
+$qv.textContent = $quality.value;
+$quality.addEventListener('input', () => { $qv.textContent = $quality.value; });
+
+$btnPick.onclick = () => $picker.click();
+$picker.onchange = (e) => handleFiles(e.target.files);
+
+['dragenter','dragover'].forEach(ev=>{
+  $drop.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); $drop.classList.add('drag'); });
+});
+['dragleave','drop'].forEach(ev=>{
+  $drop.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); $drop.classList.remove('drag'); });
+});
+$drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+
+$btnClear.onclick = ()=>{ $list.innerHTML=''; };
+
+function fmtBytes(bytes){
+  if(bytes===0) return '0 B';
+  const k=1024, dm=1, sizes=['B','KB','MB','GB'];
+  const i=Math.floor(Math.log(bytes)/Math.log(k));
+  return parseFloat((bytes/Math.pow(k,i)).toFixed(dm))+' '+sizes[i];
+}
+
+async function handleFiles(fileList){
+  const files = Array.from(fileList).filter(f => /^image\//.test(f.type));
+  for(const f of files){
+    await processFile(f);
+  }
+}
+
+async function processFile(file){
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await loadImage(url);
+    const {blob, outName, outW, outH} = await encode(img, file.name);
+    const row = document.createElement('div');
+    row.className='item';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = outName;
+    a.textContent = outName;
+
+    const col1 = document.createElement('div');
+    col1.innerHTML = `<div class="mono">${escapeHtml(file.name)}</div><div class="hint">→ ${escapeHtml(outName)} (${outW}×${outH})</div>`;
+    const col2 = document.createElement('div');
+    col2.textContent = fmtBytes(file.size);
+    const col3 = document.createElement('div');
+    col3.textContent = fmtBytes(blob.size);
+    const col4 = document.createElement('div');
+    col4.appendChild(a);
+
+    row.appendChild(col1); row.appendChild(col2); row.appendChild(col3); row.appendChild(col4);
+    $list.appendChild(row);
+  }finally{
+    URL.revokeObjectURL(url);
+  }
+}
+
+function loadImage(url){
+  // createImageBitmap가 빠르고 EXIF 회전 처리도 브라우저가 해줌
+  if('createImageBitmap' in window){
+    return fetch(url).then(r=>r.blob()).then(b=>createImageBitmap(b));
+  }
+  return new Promise((res,rej)=>{
+    const img = new Image();
+    img.onload = ()=> res(img);
+    img.onerror = rej;
+    img.src = url;
+  });
+}
+
+async function encode(bitmapOrImg, inName){
+  const maxw = parseInt($maxw.value,10);
+  const origW = bitmapOrImg.width || bitmapOrImg.naturalWidth;
+  const origH = bitmapOrImg.height || bitmapOrImg.naturalHeight;
+  let outW = origW, outH = origH;
+  if(maxw && maxw > 0 && origW > maxw){
+    outW = maxw;
+    outH = Math.round(origH * (maxw / origW));
+  }
+
+  const cnv = document.createElement('canvas');
+  cnv.width = outW; cnv.height = outH;
+  const ctx = cnv.getContext('2d');
+  // 고품질 리사이즈(웹킷/크롬)
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(bitmapOrImg, 0, 0, outW, outH);
+
+  const fmt = $fmt.value; // webp/jpeg/png
+  let type = 'image/webp';
+  if(fmt==='jpeg') type = 'image/jpeg';
+  if(fmt==='png') type = 'image/png';
+
+  const q = Math.max(0.1, Math.min(1, ($quality.value|0)/100));
+
+  // PNG는 quality 파라미터가 무시될 수 있음(브라우저 구현 의존)
+  const blob = await new Promise(res => cnv.toBlob(res, type, fmt==='png'?undefined:q));
+
+  const base = inName.replace(/\.[^.]+$/, '');
+  const ext = fmt==='jpeg'? 'jpg' : fmt;
+  const outName = `${base}-min.${ext}`;
+  return {blob, outName, outW, outH};
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+</script>
+</body>
+</html>

@@ -1,306 +1,245 @@
-<!doctype html>
-<html lang="ko">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>이미지 용량 압축 및 변환 (설치 불필요, 무제한 사용)</title>
-  <meta name="description" content="여러 이미지를 브라우저에서 압축/변환하고 일괄 다운로드할 수 있습니다. 모든 처리는 로컬에서만 수행됩니다.">
+  <title>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</title>
+
   <link rel="stylesheet" href="styles.css">
+  <style>
+    :root{--bg:#0b1220;--fg:#e5e7eb;--muted:#9aa3af;--accent:#60a5fa;--danger:#ef4444;--border:#1f2937}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#0b1220;color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    h1{font-size:22px;margin:0 0 12px}
+    .card{background:linear-gradient(180deg,#0f172a,#0a1020);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    label{font-size:14px;color:var(--muted)}
+    input[type="number"], select{background:#0f1a33;border:1px solid var(--border);color:var(--fg);padding:8px 10px;border-radius:10px}
+    input[type="range"]{width:200px}
+    button{background:var(--accent);color:#051225;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button.secondary{background:#18223a;color:var(--fg);border:1px solid var(--border)}
+    .drop{margin-top:12px;border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;color:var(--muted);background:#0a0f1f}
+    .drop.drag{border-color:#60a5fa;color:#cbd5e1}
+    .list{margin-top:16px}
+    .item{display:grid;grid-template-columns:1.2fr .6fr .6fr 160px 40px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #111827}
+    .item a{color:#93c5fd}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:#cbd5e1}
+    .hint{font-size:13px;color:var(--muted);margin-top:8px}
+    .xbtn{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#1f2937;border:1px solid #243041;color:#e5e7eb;cursor:pointer}
+    .xbtn:hover{background:#2b364b}
+    .xbtn:active{transform:scale(0.98)}
+  </style>
 </head>
 <body>
 
-  <!-- 고정 헤더 (styles.css의 header/nav/brand/navlinks 사용) -->
+
   <header>
-    <div class="container">
-      <nav>
-        <div class="brand">내 홈페이지<span class="logo-dot"></span></div>
-        <div class="navlinks">
-          <a href="index.html">Home</a>
-          <a href="stock.html">Stock Market</a>
-          <a href="matjip.html">맛집</a>
-          <a href="index.html#contact" class="btn primary">문의하기</a>
-        </div>
-      </nav>
-    </div>
-  </header>
-
-  <!-- 히어로 -->
-  <main class="container">
-    <section class="hero" data-anim>
-      <p class="tag">브라우저만으로 간편하게</p>
-      <h1>이미지 용량 압축 & 변환</h1>
-      <p class="muted">설치 없이 무제한 사용. 드래그&드롭으로 업로드하고, 품질/크기를 조절해 한 번에 저장하세요. 모든 작업은 로컬에서만 처리됩니다.</p>
-    </section>
-
-    <!-- 설정/컨트롤 카드 -->
-    <section>
-      <div class="card" data-anim="2">
-        <div class="section-title">
-          <div class="bar"></div>
-          <h2>설정</h2>
-        </div>
-
-        <div class="grid cols-3">
-          <div>
-            <label for="fmt" class="muted">출력 형식</label><br>
-            <select id="fmt">
-              <option value="webp" selected>WebP (권장)</option>
-              <option value="jpeg">JPEG (알파 없음)</option>
-              <option value="png">PNG (무손실, 효과 적을 수 있음)</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="quality" class="muted">품질 <strong id="qv">80</strong></label><br>
-            <input id="quality" type="range" min="10" max="100" value="80" />
-          </div>
-
-          <div>
-            <label for="maxw" class="muted">가로 최대(px) <span class="muted">— 비우면 원본 유지</span></label><br>
-            <input id="maxw" type="number" min="1" placeholder="예: 1200"/>
-          </div>
-        </div>
-
-        <div style="margin-top:16px">
-          <button id="btnPick" class="btn ghost" type="button">파일 선택</button>
-          <button id="btnSaveAll" class="btn primary" type="button">일괄 다운로드</button>
-          <button id="btnClear" class="btn ghost" type="button">목록 비우기</button>
-        </div>
+  <div class="container">
+    <nav>
+      <div class="brand">내 홈페이지 </div>
+      <div class="navlinks">
+        <a href="index.html">Home</a>
+        <a href="stock.html">Stock Market</a>
+        <a href="matjip.html">맛집</a>
+        <a href="index.html#contact" class="btn primary">문의하기</a>
       </div>
-    </section>
+    </nav>
+  </div>
+</header>
+  
+  <div class="wrap">
+    <h1>이미지 용량 압축 및 변환 (설치 불필요, 무제한 사용)</h1>
+    <div class="card">
+      <div class="row">
+        <label>출력 형식
+          <select id="fmt">
+            <option value="webp" selected>WebP (권장)</option>
+            <option value="jpeg">JPEG (알파 없음)</option>
+            <option value="png">PNG (무손실, 효과 적을 수 있음)</option>
+          </select>
+        </label>
+        <label>품질 <span id="qv">80</span>
+          <input id="quality" type="range" min="10" max="100" value="80"/>
+        </label>
+        <label>가로 최대(px) — 비워두면 원본 유지
+          <input id="maxw" type="number" min="1" placeholder="(예: 1200)"/>
+        </label>
+        <button id="btnPick" class="secondary" type="button">파일 선택</button>
+        <button id="btnSaveAll" type="button">일괄 다운로드</button>
+        <button id="btnClear" class="secondary" type="button">목록 비우기</button>
+      </div>
+      <div id="drop" class="drop">
+        <strong>여기에 이미지 파일(다중) 드롭</strong>
 
-    <!-- 드롭 영역 카드 -->
-    <section>
-      <div class="card" id="drop" data-anim="3" aria-label="드래그 앤 드롭 영역">
-        <div class="section-title">
-          <div class="bar"></div>
-          <h2>업로드</h2>
-        </div>
-
-        <p><strong>여기에 이미지 파일(다중) 드래그&드롭</strong></p>
-        <p class="muted">또는 <button id="btnPickProxy" class="btn" type="button">파일 선택</button> 버튼을 눌러 선택하세요.</p>
         <input id="picker" type="file" accept="image/*" multiple hidden/>
-        <p class="muted">모든 작업은 브라우저 내에서만 수행됩니다. 업로드되지 않습니다.</p>
-      </div>
-    </section>
-
-    <!-- 목록 영역: 카드 그리드 -->
-    <section>
-      <div class="section-title">
-        <div class="bar"></div>
-        <h2>결과 파일</h2>
+        <div class="hint">모든 작업은 브라우저 내에서만 수행됩니다. 업로드되지 않습니다.</div>
       </div>
 
-      <div class="grid cols-3" id="list" aria-live="polite">
-        <!-- JS가 .card.item 단위를 추가합니다 -->
-      </div>
-
-      <p class="muted" style="margin-top:12px">※ PNG→PNG는 용량 감소가 적을 수 있습니다. 대용량 PNG는 <strong>WebP</strong>로 내보내면 효과가 큽니다. 투명(알파)이 필요하면 WebP 유지, 필요 없으면 JPEG도 가능.</p>
-      <p class="muted"><strong>주의:</strong> <u>JPEG → PNG 변환</u>은 용량이 <u>더 커질 수</u> 있습니다. 형식 변환 전에 목적을 확인하세요.</p>
-    </section>
-  </main>
-
-  <!-- 푸터 (styles.css의 .footer 클래스를 사용) -->
-  <div class="footer">
-    <div class="container">
-      <small>© 2025 rfp.kr</small>
+      <div class="list" id="list"></div>
+      <div class="hint">※ PNG→PNG는 용량 감소가 적을 수 있습니다. 대용량 PNG는 <strong>WebP</strong>로 내보내면 효과가 큽니다. 투명(알파)이 필요하면 WebP 유지, 필요 없으면 JPEG도 가능.</div>
+      <div class="hint"><strong>주의:</strong> <u>JPEG → PNG 변환</u>은 용량이 <u>더 커질 수</u> 있습니다. 형식 변환 전에 목적을 확인하세요.</div>
     </div>
   </div>
 
-  <script>
-    // ====== 엘리먼트 ======
-    const $drop = document.getElementById('drop');
-    const $picker = document.getElementById('picker');
-    const $btnPick = document.getElementById('btnPick');       // 상단 설정 카드의 파일 선택
-    const $btnPickProxy = document.getElementById('btnPickProxy'); // 드롭 카드 내부의 파일 선택
-    const $list = document.getElementById('list');
-    const $fmt = document.getElementById('fmt');
-    const $quality = document.getElementById('quality');
-    const $qv = document.getElementById('qv');
-    const $maxw = document.getElementById('maxw');
-    const $btnClear = document.getElementById('btnClear');
-    const $btnSaveAll = document.getElementById('btnSaveAll');
+<script>
+const $drop = document.getElementById('drop');
+const $picker = document.getElementById('picker');
+const $btnPick = document.getElementById('btnPick');
+const $list = document.getElementById('list');
+const $fmt = document.getElementById('fmt');
+const $quality = document.getElementById('quality');
+const $qv = document.getElementById('qv');
+const $maxw = document.getElementById('maxw');
+const $btnClear = document.getElementById('btnClear');
+const $btnSaveAll = document.getElementById('btnSaveAll');
 
-    // 초기 품질 반영
-    $qv.textContent = $quality.value;
-    $quality.addEventListener('input', () => { $qv.textContent = $quality.value; });
+$qv.textContent = $quality.value;
+$quality.addEventListener('input', () => { $qv.textContent = $quality.value; });
 
-    // 파일 선택 버튼들
-    if ($btnPick) $btnPick.onclick = () => $picker.click();
-    if ($btnPickProxy) $btnPickProxy.onclick = () => $picker.click();
-    $picker.onchange = (e) => handleFiles(e.target.files);
+$btnPick.onclick = () => $picker.click();
+$picker.onchange = (e) => handleFiles(e.target.files);
 
-    // 드래그 앤 드롭
-    ['dragenter','dragover'].forEach(ev=>{
-      $drop.addEventListener(ev, e=>{
-        e.preventDefault(); e.stopPropagation();
-        // hover 느낌만: 카드 호버 효과는 styles.css가 처리
-        $drop.setAttribute('data-anim', '3');
-      });
-    });
-    ['dragleave','drop'].forEach(ev=>{
-      $drop.addEventListener(ev, e=>{
-        e.preventDefault(); e.stopPropagation();
-        $drop.setAttribute('data-anim', '3');
-      });
-    });
-    $drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+['dragenter','dragover'].forEach(ev=>{
+  $drop.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); $drop.classList.add('drag'); });
+});
+['dragleave','drop'].forEach(ev=>{
+  $drop.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); $drop.classList.remove('drag'); });
+});
+$drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 
-    // Blob URL 레지스트리
-    const createdUrls = new Set();
+// Blob URL 레지스트리
+const createdUrls = new Set();
 
-    // 목록 비우기
-    $btnClear.onclick = ()=>{
-      createdUrls.forEach(u => URL.revokeObjectURL(u));
-      createdUrls.clear();
-      $list.innerHTML='';
-    };
+$btnClear.onclick = ()=>{
+  createdUrls.forEach(u => URL.revokeObjectURL(u));
+  createdUrls.clear();
+  $list.innerHTML='';
+};
 
-    function fmtBytes(bytes){
-      if(bytes===0) return '0 B';
-      const k=1024, dm=1, sizes=['B','KB','MB','GB'];
-      const i=Math.floor(Math.log(bytes)/Math.log(k));
-      return parseFloat((bytes/Math.pow(k,i)).toFixed(dm))+' '+sizes[i];
-    }
+function fmtBytes(bytes){
+  if(bytes===0) return '0 B';
+  const k=1024, dm=1, sizes=['B','KB','MB','GB'];
+  const i=Math.floor(Math.log(bytes)/Math.log(k));
+  return parseFloat((bytes/Math.pow(k,i)).toFixed(dm))+' '+sizes[i];
+}
 
-    async function handleFiles(fileList){
-      const files = Array.from(fileList).filter(f => /^image\\//.test(f.type));
-      for (const f of files){
-        await processFile(f);
-      }
-    }
+async function handleFiles(fileList){
+  const files = Array.from(fileList).filter(f => /^image\//.test(f.type));
+  for(const f of files){
+    await processFile(f);
+  }
+}
 
-    async function processFile(file){
-      const origUrl = URL.createObjectURL(file);
-      createdUrls.add(origUrl);
-      try{
-        const img = await loadImage(origUrl);
-        const {blob, outName, outW, outH} = await encode(img, file.name);
-        const outUrl = URL.createObjectURL(blob);
-        createdUrls.add(outUrl);
+async function processFile(file){
+  const origUrl = URL.createObjectURL(file);
+  createdUrls.add(origUrl);
+  try{
+    const img = await loadImage(origUrl);
+    const {blob, outName, outW, outH} = await encode(img, file.name);
+    const outUrl = URL.createObjectURL(blob);
+    createdUrls.add(outUrl);
 
-        // ====== 카드 아이템 구성 (styles.css의 .card, .btn, .muted만 사용) ======
-        const card = document.createElement('div');
-        card.className = 'card item';
-        card.dataset.outUrl = outUrl;
-        card.dataset.origUrl = origUrl;
+    const row = document.createElement('div');
+    row.className='item';
+    row.dataset.outUrl = outUrl;
+    row.dataset.origUrl = origUrl;
 
-        // 파일명 + 해상도
-        const titleWrap = document.createElement('div');
-        titleWrap.className = 'section-title';
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        const h3 = document.createElement('h3');
-        h3.textContent = outName;
-        titleWrap.appendChild(bar);
-        titleWrap.appendChild(h3);
+    const a = document.createElement('a');
+    a.href = outUrl;
+    a.download = outName;
+    a.textContent = outName;
 
-        // 상세 정보
-        const meta = document.createElement('p');
-        meta.className = 'muted';
-        meta.innerHTML = \`원본 <strong>\${escapeHtml(file.name)}</strong> → 출력 <strong>\${escapeHtml(outName)}</strong> (\${outW}×\${outH})\`;
+    const col1 = document.createElement('div');
+    col1.innerHTML = `<div class="mono">${escapeHtml(file.name)}</div><div class="hint">→ ${escapeHtml(outName)} (${outW}×${outH})</div>`;
+    const col2 = document.createElement('div');
+    col2.textContent = fmtBytes(file.size);
+    const col3 = document.createElement('div');
+    col3.textContent = fmtBytes(blob.size);
 
-        // 크기 변화
-        const sizes = document.createElement('p');
-        sizes.className = 'muted';
-        sizes.textContent = \`\${fmtBytes(file.size)} → \${fmtBytes(blob.size)}\`;
+    const col4 = document.createElement('div');
+    col4.appendChild(a);
 
-        // 액션 버튼
-        const actions = document.createElement('div');
-        const a = document.createElement('a');
-        a.href = outUrl;
-        a.download = outName;
-        a.className = 'btn';
-        a.textContent = '다운로드';
+    const col5 = document.createElement('div');
+    const del = document.createElement('button');
+    del.className='xbtn';
+    del.type='button';
+    del.title='이 항목 삭제';
+    del.innerHTML='✕';
+    del.onclick = () => removeRow(row);
+    col5.appendChild(del);
 
-        const del = document.createElement('button');
-        del.type = 'button';
-        del.className = 'btn ghost';
-        del.textContent = '삭제';
-        del.onclick = () => removeCard(card);
+    row.appendChild(col1); row.appendChild(col2); row.appendChild(col3); row.appendChild(col4); row.appendChild(col5);
+    $list.appendChild(row);
+  }catch(err){
+    console.error(err);
+    URL.revokeObjectURL(origUrl);
+    createdUrls.delete(origUrl);
+  }
+}
 
-        actions.appendChild(a);
-        actions.appendChild(del);
+function loadImage(url){
+  if('createImageBitmap' in window){
+    return fetch(url).then(r=>r.blob()).then(b=>createImageBitmap(b));
+  }
+  return new Promise((res,rej)=>{
+    const img = new Image();
+    img.onload = ()=> res(img);
+    img.onerror = rej;
+    img.src = url;
+  });
+}
 
-        card.appendChild(titleWrap);
-        card.appendChild(meta);
-        card.appendChild(sizes);
-        card.appendChild(actions);
+async function encode(bitmapOrImg, inName){
+  const maxw = parseInt($maxw.value,10);
+  const origW = bitmapOrImg.width || bitmapOrImg.naturalWidth;
+  const origH = bitmapOrImg.height || bitmapOrImg.naturalHeight;
+  let outW = origW, outH = origH;
+  if(maxw && maxw > 0 && origW > maxw){
+    outW = maxw;
+    outH = Math.round(origH * (maxw / origW));
+  }
 
-        $list.appendChild(card);
-      }catch(err){
-        console.error(err);
-        URL.revokeObjectURL(origUrl);
-        createdUrls.delete(origUrl);
-      }
-    }
+  const cnv = document.createElement('canvas');
+  cnv.width = outW; cnv.height = outH;
+  const ctx = cnv.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(bitmapOrImg, 0, 0, outW, outH);
 
-    function loadImage(url){
-      if('createImageBitmap' in window){
-        return fetch(url).then(r=>r.blob()).then(b=>createImageBitmap(b));
-      }
-      return new Promise((res,rej)=>{
-        const img = new Image();
-        img.onload = ()=> res(img);
-        img.onerror = rej;
-        img.src = url;
-      });
-    }
+  const fmt = document.getElementById('fmt').value; // webp/jpeg/png
+  let type = 'image/webp';
+  if(fmt==='jpeg') type = 'image/jpeg';
+  if(fmt==='png') type = 'image/png';
 
-    async function encode(bitmapOrImg, inName){
-      const maxw = parseInt($maxw.value,10);
-      const origW = bitmapOrImg.width || bitmapOrImg.naturalWidth;
-      const origH = bitmapOrImg.height || bitmapOrImg.naturalHeight;
-      let outW = origW, outH = origH;
-      if(maxw && maxw > 0 && origW > maxw){
-        outW = maxw;
-        outH = Math.round(origH * (maxw / origW));
-      }
+  const q = Math.max(0.1, Math.min(1, (document.getElementById('quality').value|0)/100));
+  const blob = await new Promise(res => cnv.toBlob(res, type, fmt==='png'?undefined:q));
 
-      const cnv = document.createElement('canvas');
-      cnv.width = outW; cnv.height = outH;
-      const ctx = cnv.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(bitmapOrImg, 0, 0, outW, outH);
+  const base = inName.replace(/\.[^.]+$/, '');
+  const ext = fmt==='jpeg'? 'jpg' : fmt;
+  const outName = `${base}-min.${ext}`;
+  return {blob, outName, outW, outH};
+}
 
-      const fmt = $fmt.value; // webp/jpeg/png
-      let type = 'image/webp';
-      if(fmt==='jpeg') type = 'image/jpeg';
-      if(fmt==='png') type = 'image/png';
+function removeRow(row){
+  const outUrl = row?.dataset?.outUrl;
+  const origUrl = row?.dataset?.origUrl;
+  if(outUrl){ URL.revokeObjectURL(outUrl); createdUrls.delete(outUrl); }
+  if(origUrl){ URL.revokeObjectURL(origUrl); createdUrls.delete(origUrl); }
+  row.remove();
+}
 
-      const q = Math.max(0.1, Math.min(1, ($quality.value|0)/100));
-      const blob = await new Promise(res => cnv.toBlob(res, type, fmt==='png'?undefined:q));
+// ===== 일괄 다운로드 =====
+$btnSaveAll.onclick = async ()=>{
+  const rows = Array.from($list.querySelectorAll('.item'));
+  if(rows.length===0) return;
+  for(let i=0;i<rows.length;i++){
+    const a = rows[i].querySelector('a');
+    if(a){ a.click(); }
+    await wait(180);
+  }
+};
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-      const base = inName.replace(/\\.[^.]+$/, '');
-      const ext = fmt==='jpeg'? 'jpg' : fmt;
-      const outName = \`\${base}-min.\${ext}\`;
-      return {blob, outName, outW, outH};
-    }
-
-    function removeCard(card){
-      const outUrl = card?.dataset?.outUrl;
-      const origUrl = card?.dataset?.origUrl;
-      if(outUrl){ URL.revokeObjectURL(outUrl); createdUrls.delete(outUrl); }
-      if(origUrl){ URL.revokeObjectURL(origUrl); createdUrls.delete(origUrl); }
-      card.remove();
-    }
-
-    // ===== 일괄 다운로드 =====
-    $btnSaveAll.onclick = async ()=>{
-      const cards = Array.from($list.querySelectorAll('.card.item'));
-      if(cards.length===0) return;
-      for(let i=0;i<cards.length;i++){
-        const a = cards[i].querySelector('a.btn');
-        if(a){ a.click(); }
-        await wait(180);
-      }
-    };
-    function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-    function escapeHtml(s){
-      return (s||'').toString().replace(/[&<>\"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-    }
-  </script>
-</body>
-</html>
+function escapeHtml(s){
+  return (s||'').toString().replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+</script>

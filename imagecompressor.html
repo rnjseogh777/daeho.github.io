@@ -1,9 +1,12 @@
+<!DOCTYPE html>
+<html lang="ko">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>로컬 이미지 용량 압축 (오프라인, 설치 불필요)</title>
 
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="navigation.css">
   <style>
     :root{--bg:#0b1220;--fg:#e5e7eb;--muted:#9aa3af;--accent:#60a5fa;--danger:#ef4444;--border:#1f2937}
     *{box-sizing:border-box}
@@ -32,19 +35,22 @@
 <body>
 
 
-  <header>
-  <div class="container">
-    <nav>
-      <div class="brand">내 홈페이지 </div>
-      <div class="navlinks">
+  <header class="site-header">
+    <nav class="site-nav" aria-label="주요 메뉴">
+      <a class="site-brand" href="index.html" aria-label="DAEHO 홈">
+        DAEHO <span class="site-brand__mark" aria-hidden="true"></span>
+      </a>
+      <div class="site-links">
         <a href="index.html">Home</a>
+        <a href="imagecompressor.html" aria-current="page">이미지 압축</a>
         <a href="stock.html">Stock Market</a>
         <a href="matjip.html">맛집</a>
-        <a href="index.html#contact" class="btn primary">문의하기</a>
+        <a href="scotest.html">SC&O MBTI</a>
+        <a href="dentalmbti.html">치과 MBTI</a>
+        <a class="site-cta" href="index.html#contact">문의하기</a>
       </div>
     </nav>
-  </div>
-</header>
+  </header>
   
   <div class="wrap">
     <h1>이미지 용량 압축 및 변환 (설치 불필요, 무제한 사용)</h1>
@@ -243,3 +249,5 @@ function escapeHtml(s){
   return (s||'').toString().replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 }
 </script>
+</body>
+</html>

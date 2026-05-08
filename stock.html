@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Stock Market — 내 홈페이지</title>
   <meta name="description" content="S&P 500 대표 종목 인터랙티브 차트 & 최신 뉴스" />
+  <link rel="stylesheet" href="navigation.css">
   <style>
     :root{ --bg:#0f172a; --panel:#111827ee; --text:#e5e7eb; --muted:#9aa3af; --accent:#60a5fa; --accent-2:#34d399; }
     *{box-sizing:border-box}
@@ -41,18 +42,21 @@
   </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <nav>
-        <div class="brand">내 홈페이지<span class="logo-dot" style="width:10px;height:10px;background:var(--accent-2);display:inline-block;border-radius:50%;margin-left:6px"></span></div>
-        <div class="navlinks">
-          <a href="/">Home</a>
-          <a href="/stock.html">Stock Market</a>
-          <a href="/matjip.html">맛집</a>
-          <a href="/#contact" class="btn primary">문의하기</a>
-        </div>
-      </nav>
-    </div>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="주요 메뉴">
+      <a class="site-brand" href="index.html" aria-label="DAEHO 홈">
+        DAEHO <span class="site-brand__mark" aria-hidden="true"></span>
+      </a>
+      <div class="site-links">
+        <a href="index.html">Home</a>
+        <a href="imagecompressor.html">이미지 압축</a>
+        <a href="stock.html" aria-current="page">Stock Market</a>
+        <a href="matjip.html">맛집</a>
+        <a href="scotest.html">SC&O MBTI</a>
+        <a href="dentalmbti.html">치과 MBTI</a>
+        <a class="site-cta" href="index.html#contact">문의하기</a>
+      </div>
+    </nav>
   </header>
 
   <main class="container">

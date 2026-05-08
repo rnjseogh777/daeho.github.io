@@ -1,0 +1,118 @@
+/* Shared global navigation */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 1px 10px rgba(15, 23, 42, 0.08);
+  backdrop-filter: saturate(160%) blur(14px);
+  margin-bottom: 0;
+}
+
+.site-nav {
+  width: min(1180px, calc(100% - 32px));
+  min-height: 64px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-brand:hover {
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.site-brand__mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14);
+}
+
+.site-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.site-links::-webkit-scrollbar {
+  display: none;
+}
+
+.site-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-links a:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.site-links a[aria-current="page"] {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.site-links .site-cta {
+  margin-left: 4px;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.site-links .site-cta:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+@media (max-width: 760px) {
+  .site-nav {
+    width: 100%;
+    min-height: auto;
+    padding: 10px 12px 8px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .site-links {
+    width: 100%;
+    justify-content: flex-start;
+    padding-bottom: 2px;
+  }
+
+  .site-links a {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}

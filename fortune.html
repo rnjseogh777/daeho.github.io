@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오늘의 운세</title>
+  <meta name="description" content="생년월일을 입력해 오늘의 총운과 분야별 운세를 재미로 확인하는 페이지" />
+  <link rel="stylesheet" href="navigation.css">
+  <style>
+    :root {
+      --bg: #fffaf1;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #e7dcc8;
+      --gold: #d97706;
+      --coral: #e85d75;
+      --green: #0f9f6e;
+      --blue: #2563eb;
+      --shadow: 0 18px 42px rgba(84, 52, 18, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fff7e6 0%, var(--bg) 35%, #ffffff 100%);
+      line-height: 1.65;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 76px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr); gap: 28px; align-items: stretch; padding: 50px 0 34px; }
+    .hero-copy { display: flex; flex-direction: column; justify-content: center; }
+    .eyebrow { width: fit-content; margin: 0 0 14px; padding: 6px 12px; border: 1px solid rgba(217,119,6,.28); border-radius: 999px; background: #ffedd5; color: #9a3412; font-size: 13px; font-weight: 800; }
+    h1 { margin: 0; font-size: clamp(38px, 7vw, 72px); line-height: 1.02; letter-spacing: 0; }
+    .lead { max-width: 680px; margin: 22px 0 0; color: #5b6472; font-size: 18px; }
+    .panel, .card { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.94); box-shadow: var(--shadow); }
+    .panel { padding: 24px; }
+    .fortune-form { display: grid; gap: 14px; align-content: start; }
+    label { display: grid; gap: 7px; color: #344054; font-weight: 750; }
+    input, select { width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid #d7c7ae; border-radius: 8px; background: #ffffff; color: var(--ink); font: inherit; }
+    input:focus, select:focus { outline: 3px solid rgba(217,119,6,.18); border-color: var(--gold); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    button { min-height: 46px; padding: 0 16px; border: 1px solid #b45309; border-radius: 8px; background: var(--gold); color: #ffffff; font: inherit; font-weight: 800; cursor: pointer; }
+    button.secondary { border-color: #d7c7ae; background: #ffffff; color: #344054; }
+    .helper, .muted { color: var(--muted); }
+    .helper { margin: 0; font-size: 14px; }
+    section { padding: 38px 0; }
+    .section-title { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .section-title .bar { width: 34px; height: 3px; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--coral), var(--green)); }
+    h2 { margin: 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.25; }
+    h3 { margin: 0 0 8px; font-size: 18px; line-height: 1.35; }
+    p { margin: 0 0 12px; }
+    .hidden { display: none; }
+    .result-head { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; margin-bottom: 18px; }
+    .score { display: grid; place-items: center; width: 86px; height: 86px; border-radius: 50%; background: #111827; color: #ffffff; font-size: 28px; font-weight: 900; }
+    .result-title { margin: 0; font-size: clamp(24px, 4vw, 40px); line-height: 1.2; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .chip { display: inline-flex; align-items: center; min-height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff7ed; color: #7c2d12; font-size: 13px; font-weight: 750; }
+    .grid { display: grid; gap: 14px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card { height: 100%; padding: 20px; box-shadow: 0 10px 28px rgba(84,52,18,.06); }
+    .metric { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .meter { flex: 1; height: 9px; overflow: hidden; border-radius: 999px; background: #f1e5d2; }
+    .meter span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold), var(--coral)); }
+    .lucky-item { padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: #fffdf8; text-align: center; }
+    .lucky-item span { display: block; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .lucky-item strong { display: block; margin-top: 6px; color: #111827; font-size: 20px; }
+    .notice { padding: 16px 18px; border: 1px solid #f8d49b; border-left: 5px solid var(--gold); border-radius: 8px; background: #fffbeb; color: #5f3b10; }
+    .footer { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 14px; }
+    @media (max-width: 860px) { .hero, .grid.cols-2, .grid.cols-4 { grid-template-columns: 1fr; } .hero { padding-top: 34px; } }
+    @media (max-width: 520px) { .page { width: min(100% - 24px, 1120px); padding-top: 24px; } .panel, .card { padding: 18px; } .form-row, .result-head { grid-template-columns: 1fr; } button { width: 100%; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="주요 메뉴">
+      <a class="site-brand" href="index.html" aria-label="DAEHO 홈">
+        DAEHO <span class="site-brand__mark" aria-hidden="true"></span>
+      </a>
+      <div class="site-links">
+        <a href="index.html">Home</a>
+        <a href="imagecompressor.html">이미지 압축</a>
+        <a href="stock.html">Stock Market</a>
+        <a href="matjip.html">맛집</a>
+        <a href="scotest.html">SC&O MBTI</a>
+        <a href="dentalmbti.html">치과 MBTI</a>
+        <a href="wisdomtooth.html">사랑니 관리</a>
+        <a href="fortune.html" aria-current="page">오늘의 운세</a>
+        <a class="site-cta" href="index.html#contact">문의하기</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">생년월일 기반 재미 운세</p>
+        <h1 id="page-title">오늘의 흐름을 가볍게 확인해보세요</h1>
+        <p class="lead">생년월일과 오늘 날짜를 조합해 총운, 금전운, 연애운, 일운, 컨디션운을 보여줍니다. 결과는 브라우저 안에서만 계산됩니다.</p>
+      </div>
+      <form class="panel fortune-form" id="fortuneForm">
+        <label>
+          생년월일
+          <input id="birthDate" type="date" required aria-describedby="privacyText" />
+        </label>
+        <div class="form-row">
+          <label>
+            태어난 시간
+            <select id="birthTime">
+              <option value="unknown">모름</option>
+              <option value="morning">아침</option>
+              <option value="day">낮</option>
+              <option value="evening">저녁</option>
+              <option value="night">밤</option>
+            </select>
+          </label>
+          <label>
+            보고 싶은 분야
+            <select id="focus">
+              <option value="all">전체</option>
+              <option value="money">금전</option>
+              <option value="love">연애/관계</option>
+              <option value="work">일/공부</option>
+              <option value="health">컨디션</option>
+            </select>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button type="submit">운세 보기</button>
+          <button class="secondary" type="button" id="againButton">다시 보기</button>
+        </div>
+        <p class="helper" id="privacyText">입력한 생년월일은 서버로 전송되지 않으며, 화면 계산에만 사용됩니다.</p>
+      </form>
+    </section>
+
+    <section id="result" class="hidden" aria-live="polite">
+      <div class="section-title"><div class="bar"></div><h2>오늘의 운세 결과</h2></div>
+      <div class="panel">
+        <div class="result-head">
+          <div class="score" id="score">--</div>
+          <div>
+            <h2 class="result-title" id="resultTitle">결과를 준비 중입니다</h2>
+            <p class="helper" id="resultDate"></p>
+            <div class="chips" id="chips"></div>
+          </div>
+        </div>
+        <p id="summary"></p>
+        <div class="grid cols-4" id="luckyItems"></div>
+      </div>
+    </section>
+
+    <section id="details" class="hidden">
+      <div class="section-title"><div class="bar"></div><h2>분야별 흐름</h2></div>
+      <div class="grid cols-2" id="detailCards"></div>
+    </section>
+
+    <section>
+      <div class="notice">
+        <strong>안내:</strong> 이 페이지는 재미와 대화 소재를 위한 운세 콘텐츠입니다. 중요한 결정은 실제 상황과 충분한 논의를 기준으로 판단하세요.
+      </div>
+    </section>
+
+    <div class="footer">
+      <small>© <span id="year"></span> 내 홈페이지 · 오늘의 운세</small>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('fortuneForm');
+    const birthDate = document.getElementById('birthDate');
+    const birthTime = document.getElementById('birthTime');
+    const focus = document.getElementById('focus');
+    const result = document.getElementById('result');
+    const details = document.getElementById('details');
+    const score = document.getElementById('score');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDate = document.getElementById('resultDate');
+    const summary = document.getElementById('summary');
+    const chips = document.getElementById('chips');
+    const luckyItems = document.getElementById('luckyItems');
+    const detailCards = document.getElementById('detailCards');
+
+    const titles = ['작은 기회가 크게 보이는 날', '속도를 낮추면 더 멀리 가는 날', '말보다 정리가 먼저인 날', '관계에서 힌트를 얻는 날', '미뤄둔 일이 풀리기 쉬운 날', '선택지를 줄일수록 좋은 날'];
+    const summaries = ['오늘은 눈앞의 작은 약속을 정확히 지키는 쪽이 좋습니다. 생각보다 주변 반응이 빠르게 돌아올 수 있습니다.', '중요한 말은 한 번 더 정리하고 꺼내보세요. 차분한 태도가 운을 안정적으로 끌어옵니다.', '새로운 일보다 이미 시작한 일을 다듬기 좋은 흐름입니다. 작은 확인이 나중의 수고를 줄여줍니다.', '사람을 통해 실마리가 들어오는 날입니다. 가볍게 의견을 모으면 방향이 선명해집니다.'];
+    const advice = {
+      money: ['충동구매보다 필요한 지출을 먼저 정리하세요.', '작은 할인이나 환급처럼 놓치기 쉬운 돈을 챙기기 좋습니다.', '큰 투자 판단은 하루 더 시간을 두고 보는 편이 낫습니다.'],
+      love: ['먼저 안부를 묻는 짧은 메시지가 분위기를 부드럽게 만듭니다.', '상대의 말끝보다 의도를 보려는 태도가 필요합니다.', '가벼운 칭찬과 감사 표현이 관계운을 올립니다.'],
+      work: ['가장 작은 업무부터 끝내면 흐름이 빠르게 살아납니다.', '문서, 일정, 숫자를 다시 확인하면 실수를 줄일 수 있습니다.', '회의나 대화 전 핵심 한 줄을 준비해두면 설득력이 올라갑니다.'],
+      health: ['수분과 가벼운 스트레칭이 컨디션 회복에 도움이 됩니다.', '무리한 운동보다 산책처럼 부담 없는 움직임이 맞습니다.', '잠깐의 휴식이 오늘 전체의 집중력을 지켜줍니다.']
+    };
+    const colors = ['살구색', '초록색', '하늘색', '남색', '아이보리', '분홍색', '노란색'];
+    const numbers = [3, 5, 7, 8, 11, 14, 19, 22, 27, 31];
+    const items = ['따뜻한 차', '메모장', '흰 셔츠', '이어폰', '편한 신발', '작은 간식', '볼펜'];
+    const directions = ['동쪽', '서쪽', '남쪽', '북쪽', '햇빛 드는 자리', '조용한 자리'];
+
+    function hashString(value) {
+      let hash = 2166136261;
+      for (let i = 0; i < value.length; i += 1) {
+        hash ^= value.charCodeAt(i);
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+      }
+      return Math.abs(hash >>> 0);
+    }
+    function pick(list, seed, offset) { return list[(seed + offset) % list.length]; }
+    function todayText() {
+      const today = new Date();
+      return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+    function makeCard(label, value, text) {
+      return `<article class="card"><h3>${label}</h3><p>${text}</p><div class="metric"><div class="meter" aria-hidden="true"><span style="width:${value}%"></span></div><strong>${value}</strong></div></article>`;
+    }
+    function renderFortune() {
+      if (!birthDate.value) {
+        birthDate.focus();
+        return;
+      }
+      const today = todayText();
+      const seed = hashString(`${birthDate.value}|${birthTime.value}|${focus.value}|${today}`);
+      const values = {
+        money: 48 + ((seed >> 2) % 49),
+        love: 48 + ((seed >> 4) % 49),
+        work: 48 + ((seed >> 6) % 49),
+        health: 48 + ((seed >> 8) % 49)
+      };
+      if (focus.value !== 'all') values[focus.value] = Math.min(99, values[focus.value] + 7);
+      const total = Math.round((values.money + values.love + values.work + values.health) / 4);
+      score.textContent = total;
+      resultTitle.textContent = pick(titles, seed, 1);
+      resultDate.textContent = `${today} 기준 · 생년월일 ${birthDate.value}`;
+      summary.textContent = pick(summaries, seed, 3);
+      chips.innerHTML = [`오늘 점수 ${total}`, focus.value === 'all' ? '전체운' : `${focus.options[focus.selectedIndex].text} 집중`, birthTime.options[birthTime.selectedIndex].text].map((text) => `<span class="chip">${text}</span>`).join('');
+      luckyItems.innerHTML = [['행운 색', pick(colors, seed, 5)], ['행운 숫자', pick(numbers, seed, 7)], ['행운 아이템', pick(items, seed, 9)], ['좋은 방향', pick(directions, seed, 11)]].map(([label, value]) => `<div class="lucky-item"><span>${label}</span><strong>${value}</strong></div>`).join('');
+      detailCards.innerHTML = [
+        makeCard('금전운', values.money, pick(advice.money, seed, 13)),
+        makeCard('연애/관계운', values.love, pick(advice.love, seed, 17)),
+        makeCard('일/공부운', values.work, pick(advice.work, seed, 19)),
+        makeCard('컨디션운', values.health, pick(advice.health, seed, 23))
+      ].join('');
+      result.classList.remove('hidden');
+      details.classList.remove('hidden');
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    form.addEventListener('submit', (event) => { event.preventDefault(); renderFortune(); });
+    document.getElementById('againButton').addEventListener('click', renderFortune);
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

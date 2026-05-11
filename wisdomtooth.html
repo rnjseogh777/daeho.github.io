@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>사랑니 발치 후 음식과 관리 가이드</title>
+  <meta name="description" content="사랑니 발치 후 먹기 좋은 음식, 피해야 할 음식, 회복 단계별 관리 방법과 치과에 연락해야 하는 신호를 정리한 안내 페이지" />
+  <link rel="stylesheet" href="navigation.css">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #64748b;
+      --brand: #0ea5e9;
+      --brand-dark: #0369a1;
+      --mint: #10b981;
+      --line: #dbe5ef;
+      --soft: #ecfeff;
+      --warning: #fff7ed;
+      --warning-line: #fed7aa;
+      --danger: #fef2f2;
+      --danger-line: #fecaca;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        linear-gradient(180deg, rgba(236, 254, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 34%, #ffffff 100%);
+    }
+
+    a {
+      color: var(--brand-dark);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 28px;
+      align-items: stretch;
+      padding: 52px 0 36px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin: 0 0 14px;
+      padding: 6px 12px;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: var(--brand-dark);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: #475569;
+      font-size: 18px;
+    }
+
+    .hero-panel {
+      min-height: 300px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(236, 254, 255, 0.88));
+      box-shadow: var(--shadow);
+    }
+
+    .hero-panel h2,
+    .hero-panel p {
+      margin-top: 0;
+    }
+
+    .hero-panel ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: #334155;
+    }
+
+    .quick-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .quick-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    section {
+      padding: 44px 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .section-title .bar {
+      width: 34px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brand), var(--mint));
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 19px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      height: 100%;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05);
+    }
+
+    .card ul,
+    .card ol {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    .card li + li {
+      margin-top: 7px;
+    }
+
+    .note {
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--brand);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .warning {
+      border-color: var(--warning-line);
+      border-left-color: #f97316;
+      background: var(--warning);
+    }
+
+    .danger {
+      border-color: var(--danger-line);
+      border-left-color: #ef4444;
+      background: var(--danger);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      padding: 20px 20px 20px 64px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .food-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .food-list span {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #243244;
+      font-weight: 650;
+    }
+
+    .avoid span {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .source-list {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .hero,
+      .grid.cols-2,
+      .grid.cols-3,
+      .food-list {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 24px, 1120px);
+        padding-top: 22px;
+      }
+
+      .hero-panel,
+      .card {
+        padding: 18px;
+      }
+
+      .quick-links a {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="주요 메뉴">
+      <a class="site-brand" href="index.html" aria-label="DAEHO 홈">
+        DAEHO <span class="site-brand__mark" aria-hidden="true"></span>
+      </a>
+      <div class="site-links">
+        <a href="index.html">Home</a>
+        <a href="imagecompressor.html">이미지 압축</a>
+        <a href="stock.html">Stock Market</a>
+        <a href="matjip.html">맛집</a>
+        <a href="scotest.html">SC&O MBTI</a>
+        <a href="dentalmbti.html">치과 MBTI</a>
+        <a href="wisdomtooth.html" aria-current="page">사랑니 관리</a>
+        <a class="site-cta" href="index.html#contact">문의하기</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">발치 후 회복 가이드</p>
+        <h1 id="page-title">사랑니 뺀 뒤 먹기 좋은 음식과 관리 방법</h1>
+        <p class="lead">발치 부위의 피떡이 안정적으로 유지되도록 부드럽고 미지근하거나 차가운 음식을 고르고, 세게 헹구거나 빨대를 쓰는 행동은 피하는 것이 핵심입니다.</p>
+        <div class="quick-links" aria-label="페이지 바로가기">
+          <a href="#foods">음식 추천</a>
+          <a href="#timeline">회복 단계</a>
+          <a href="#care">관리 방법</a>
+          <a href="#warning">위험 신호</a>
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="핵심 요약">
+        <h2>핵심만 먼저</h2>
+        <p class="muted">개인 상태와 발치 난이도에 따라 지시가 달라질 수 있으므로, 수술한 치과의 안내가 가장 우선입니다.</p>
+        <ul>
+          <li>첫날은 휴식, 거즈 압박, 차갑고 부드러운 음식 위주</li>
+          <li>빨대, 흡연, 음주, 뜨거운 음료, 격한 운동은 피하기</li>
+          <li>다음 날부터는 부드럽게 양치하고 따뜻한 소금물로 가볍게 헹구기</li>
+          <li>통증이 심해지거나 출혈이 멈추지 않으면 치과에 연락</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section id="foods">
+      <div class="section-title"><div class="bar"></div><h2>먹으면 좋은 음식</h2></div>
+      <div class="grid cols-2">
+        <article class="card">
+          <h3>첫 24~48시간: 씹지 않아도 되는 음식</h3>
+          <p class="muted">마취가 덜 풀린 상태에서는 볼이나 혀를 씹을 수 있으니 천천히 먹고, 너무 뜨거운 음식은 피하세요.</p>
+          <div class="food-list">
+            <span>플레인 요거트</span>
+            <span>푸딩 또는 젤리</span>
+            <span>식힌 크림수프</span>
+            <span>미지근한 육수</span>
+            <span>으깬 감자</span>
+            <span>애플소스</span>
+            <span>두유 또는 우유</span>
+            <span>씨 없는 스무디</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>2~5일차: 부드러운 단백질과 탄수화물</h3>
+          <p class="muted">통증이 줄면 씹는 힘이 거의 필요 없는 음식부터 늘립니다. 아프면 한 단계 전 식단으로 돌아가세요.</p>
+          <div class="food-list">
+            <span>부드러운 스크램블 에그</span>
+            <span>죽 또는 오트밀</span>
+            <span>잘 익힌 파스타</span>
+            <span>연두부</span>
+            <span>부드러운 생선살</span>
+            <span>바나나 으깬 것</span>
+            <span>호박죽</span>
+            <span>잘게 찢은 닭고기</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="note" style="margin-top:16px">
+        <strong>먹는 온도와 질감이 중요합니다.</strong>
+        뜨겁거나 딱딱한 음식보다 차갑거나 미지근하고, 알갱이가 적고, 발치 부위에 끼지 않는 음식이 회복 초기에 더 적합합니다.
+      </div>
+    </section>
+
+    <section id="avoid">
+      <div class="section-title"><div class="bar"></div><h2>당분간 피해야 할 음식과 습관</h2></div>
+      <div class="grid cols-3">
+        <article class="card">
+          <h3>상처에 끼기 쉬운 음식</h3>
+          <div class="food-list avoid">
+            <span>깨, 견과류, 씨앗류</span>
+            <span>칩, 과자, 크래커</span>
+            <span>팝콘</span>
+            <span>딱딱한 밥알과 곡물</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>자극이 큰 음식</h3>
+          <div class="food-list avoid">
+            <span>매운 음식</span>
+            <span>신 음식과 산성 주스</span>
+            <span>뜨거운 국물</span>
+            <span>탄산음료</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>회복을 방해하는 습관</h3>
+          <div class="food-list avoid">
+            <span>빨대 사용</span>
+            <span>흡연과 전자담배</span>
+            <span>음주</span>
+            <span>세게 뱉거나 헹구기</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="timeline">
+      <div class="section-title"><div class="bar"></div><h2>회복 단계별 관리</h2></div>
+      <div class="timeline">
+        <article class="step">
+          <h3>발치 직후~첫날</h3>
+          <p>거즈는 치과에서 안내받은 시간 동안 가볍게 물어 압박합니다. 피가 조금 배어 나오는 것은 흔하지만, 침과 피를 세게 뱉으면 피떡이 떨어질 수 있습니다.</p>
+          <p class="muted">얼굴 바깥쪽에는 냉찜질을 짧게 반복하고, 무리한 활동은 쉬는 편이 좋습니다.</p>
+        </article>
+
+        <article class="step">
+          <h3>다음 날~3일차</h3>
+          <p>발치 부위는 건드리지 말고, 다른 치아는 조심스럽게 닦습니다. 치과에서 허용했다면 따뜻한 소금물이나 처방 가글을 입안에 머금었다가 흘려보내듯 사용합니다.</p>
+          <p class="muted">통증과 붓기는 개인차가 크며, 처방약과 진통제는 안내받은 용법대로 복용하세요.</p>
+        </article>
+
+        <article class="step">
+          <h3>4~7일차</h3>
+          <p>통증이 줄면 반고형식과 부드러운 일반식을 조금씩 늘릴 수 있습니다. 씹을 때 아프거나 음식이 자주 끼면 아직 회복이 덜 된 신호일 수 있습니다.</p>
+          <p class="muted">운동, 음주, 흡연 재개 시점은 발치 난이도와 회복 상태에 따라 치과 지시를 따르세요.</p>
+        </article>
+
+        <article class="step">
+          <h3>1주 이후</h3>
+          <p>많은 경우 일상 식사로 천천히 돌아갈 수 있지만, 큰 어금니 발치 부위와 턱뼈는 더 오래 회복됩니다. 구멍이 완전히 메워질 때까지 음식물 관리와 위생을 유지하세요.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="care">
+      <div class="section-title"><div class="bar"></div><h2>치료 이후 관리 방법</h2></div>
+      <div class="grid cols-2">
+        <article class="card">
+          <h3>입안 관리</h3>
+          <ul>
+            <li>발치 부위를 혀, 손가락, 면봉으로 확인하거나 찌르지 않습니다.</li>
+            <li>양치는 하되 발치 부위 바로 위는 치과가 허용할 때까지 피합니다.</li>
+            <li>헹굴 때는 세게 가글하지 말고 머리를 기울여 액체가 자연스럽게 닿게 합니다.</li>
+            <li>음식 섭취 후에는 발치 부위에 음식물이 남지 않도록 부드럽게 관리합니다.</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3>생활 관리</h3>
+          <ul>
+            <li>첫 2~3일은 심박수가 크게 오르는 운동과 무거운 물건 들기를 피합니다.</li>
+            <li>처방받은 항생제나 진통제는 임의로 중단하지 말고 지시대로 복용합니다.</li>
+            <li>마취나 진정치료를 받은 날은 운전, 기계 조작, 음주를 피합니다.</li>
+            <li>베개를 조금 높이고 쉬면 붓기와 불편감 관리에 도움이 될 수 있습니다.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="warning">
+      <div class="section-title"><div class="bar"></div><h2>치과에 연락해야 하는 신호</h2></div>
+      <div class="note danger">
+        <p><strong>다음 증상이 있으면 수술한 치과나 응급 진료기관에 문의하세요.</strong></p>
+        <ul>
+          <li>거즈로 압박해도 출혈이 계속되거나 피가 많이 나는 경우</li>
+          <li>진통제를 먹어도 심한 통증이 줄지 않거나 3~5일 사이 더 심해지는 경우</li>
+          <li>입안에서 나쁜 맛, 고름, 심한 악취가 나거나 열이 나는 경우</li>
+          <li>붓기가 계속 커지거나 삼키기, 숨쉬기, 입 벌리기가 어려운 경우</li>
+          <li>입술, 턱, 혀의 저림이 오래 지속되거나 악화되는 경우</li>
+        </ul>
+      </div>
+
+      <div class="note warning" style="margin-top:16px">
+        <strong>주의:</strong>
+        이 페이지는 일반적인 회복 안내이며 진단이나 처방을 대신하지 않습니다. 발치한 치아의 위치, 매복 정도, 봉합 여부, 복용 중인 약에 따라 관리법이 달라질 수 있습니다.
+      </div>
+    </section>
+
+    <section id="sources">
+      <div class="section-title"><div class="bar"></div><h2>참고 자료</h2></div>
+      <div class="card">
+        <p class="muted">내용 구성 시 아래 의료기관 안내를 참고했습니다.</p>
+        <ul class="source-list">
+          <li><a href="https://www.nhs.uk/conditions/Wisdom-tooth-removal" target="_blank" rel="noopener">NHS, Wisdom tooth removal</a></li>
+          <li><a href="https://my.clevelandclinic.org/health/treatments/22120-tooth-extraction" target="_blank" rel="noopener">Cleveland Clinic, Tooth Extraction</a></li>
+          <li><a href="https://my.clevelandclinic.org/health/diseases/17731-dry-socket" target="_blank" rel="noopener">Cleveland Clinic, Dry Socket</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="footer">
+      <small>© <span id="year"></span> 내 홈페이지 · 사랑니 발치 후 회복 안내</small>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
